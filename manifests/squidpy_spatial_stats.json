@@ -1,0 +1,51 @@
+{
+  "id": "squidpy_spatial_stats",
+  "title": "空间统计工具箱(squidpy:Moran/邻域富集/共定位)",
+  "title_en": "Spatial statistics (squidpy)",
+  "category": "bio",
+  "family": "空间转录组",
+  "language": "Python",
+  "library": "bioinfo-reusable-code",
+  "interp": "python",
+  "status": "turnkey",
+  "tier": "T2",
+  "entry": "toolkit/modules/08_singlecell_spatial_trajectory/543_squidpy_spatial_statistics/543_squidpy_spatial_statistics.py",
+  "workdir": "toolkit/modules/08_singlecell_spatial_trajectory/543_squidpy_spatial_statistics",
+  "description": "空间转录组统计分析(squidpy):空间邻接图、Moran's I 空间自相关基因、邻域富集(细胞域共定位)、共现与 Ripley 统计,输出空间图与结果表。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "空间 AnnData (.h5ad)",
+      "format": "h5ad",
+      "required": true,
+      "primary": true,
+      "mem_axis": "n_obs",
+      "example": "example_data/spatial_demo.h5ad",
+      "spec": "AnnData .h5ad:需含 obsm['spatial'](spot 坐标)+ obs 里的离散域/类型标签列(见 cluster_key 参数)。留空用内置合成示例。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "cluster_key": {"type": "string", "title": "细胞域/类型标签列名", "default": "domain"},
+      "n_neighs": {"type": "integer", "title": "空间 KNN 邻居数", "default": 6},
+      "n_perms": {"type": "integer", "title": "置换次数(Moran/邻域富集)", "default": 200}
+    }
+  },
+  "param_flags": {"cluster_key": "--cluster_key", "n_neighs": "--n_neighs", "n_perms": "--n_perms"},
+  "outputs": [
+    {"glob": "*.png", "display": "image"},
+    {"glob": "*.csv", "display": "table"}
+  ],
+  "mem_hint": {
+    "model": "scrna_dense",
+    "killer_dim": "spot 数 × 基因数",
+    "matrix_copies": 3,
+    "hvg": 2000,
+    "calibrated": false,
+    "note": "空间统计置换检验较耗时;spot/基因多时内存与时间上升,可减少 n_perms。"
+  },
+  "stage": "S5",
+  "item_order": 60
+}
