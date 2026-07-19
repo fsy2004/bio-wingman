@@ -1,0 +1,52 @@
+{
+  "id": "trajectory_slingshot",
+  "title": "单细胞拟时序轨迹(Slingshot/tradeSeq)",
+  "title_en": "Single-cell trajectory (Slingshot/tradeSeq)",
+  "category": "bio",
+  "family": "单细胞",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T2",
+  "entry": "toolkit/modules/08_singlecell_spatial_trajectory/082_trajectory_slingshot/082_trajectory_slingshot.R",
+  "workdir": "toolkit/modules/08_singlecell_spatial_trajectory/082_trajectory_slingshot",
+  "description": "单细胞拟时序轨迹推断:Slingshot 在 UMAP 上拟合谱系与伪时间,tradeSeq 找沿轨迹显著变化的基因。输出谱系/伪时间 UMAP 图与伪时间/关联检验结果表。",
+  "inputs": [
+    {
+      "name": "seurat_rds",
+      "flag": "--seurat_rds",
+      "label": "Seurat 对象 (.rds)",
+      "format": "rds",
+      "required": true,
+      "primary": true,
+      "mem_axis": "n_cols",
+      "example": "example_data/seurat_demo.rds",
+      "spec": "已聚类的 Seurat 对象 rds:需含聚类列(默认 seurat_clusters)与降维(默认 umap)。可先用「单细胞标准分析」得到对象后 saveRDS。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "cluster_col": {"type": "string", "title": "聚类列名", "default": "seurat_clusters"},
+      "reduction": {"type": "string", "title": "降维名", "default": "umap"},
+      "start_cluster": {"type": "string", "title": "起始簇(留空=自动)", "default": ""}
+    }
+  },
+  "param_flags": {"cluster_col": "--cluster_col", "reduction": "--reduction", "start_cluster": "--start_cluster"},
+  "cite_pkgs": ["slingshot", "tradeSeq"],
+  "outputs": [
+    {"glob": "*.png", "display": "image"},
+    {"glob": "*.csv", "display": "table"}
+  ],
+  "mem_hint": {
+    "model": "scrna_dense",
+    "killer_dim": "细胞数 × 基因数",
+    "matrix_copies": 3,
+    "hvg": 2000,
+    "calibrated": false,
+    "note": "tradeSeq 拟合 GAM 较耗时;细胞/基因多时明显变慢,可先下采样。"
+  },
+  "stage": "S5",
+  "item_order": 8
+}

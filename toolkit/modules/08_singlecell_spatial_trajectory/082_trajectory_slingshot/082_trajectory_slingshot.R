@@ -54,6 +54,37 @@ pt <- slingshot::slingPseudotime(sce)
 write.csv(pt, file.path(args$outdir, "slingshot_pseudotime.csv"))
 saveRDS(sce, file.path(args$outdir, "slingshot_sce.rds"))
 
+# ---- 轨迹可视化(补:原模块只出表/rds,给 Bio Wingman 加发表级图)----
+suppressWarnings(suppressMessages(library(ggplot2)))
+.emb <- SingleCellExperiment::reducedDim(sce, toupper(reduction))
+.df <- data.frame(Dim1 = .emb[, 1], Dim2 = .emb[, 2],
+                  cluster = factor(sce$cluster_for_trajectory), pseudotime = pt[, 1])
+.curves <- slingshot::slingCurves(sce)
+.curve_df <- do.call(rbind, lapply(seq_along(.curves), function(i) {
+  s <- .curves[[i]]$s[.curves[[i]]$ord, , drop = FALSE]
+  data.frame(Dim1 = s[, 1], Dim2 = s[, 2], lineage = paste0("L", i))
+}))
+.okabe <- c("#0072B2", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00", "#F0E442", "#999999")
+.xl <- paste0(toupper(reduction), " 1"); .yl <- paste0(toupper(reduction), " 2")
+.p1 <- ggplot(.df, aes(Dim1, Dim2, color = cluster)) +
+  geom_point(size = 1.1, alpha = 0.85) +
+  geom_path(data = .curve_df, aes(Dim1, Dim2, group = lineage), color = "black",
+            linewidth = 0.7, inherit.aes = FALSE) +
+  scale_color_manual(values = .okabe) +
+  labs(x = .xl, y = .yl, title = "Slingshot lineages") +
+  theme_bw(base_size = 11) + theme(panel.grid = element_blank())
+ggsave(file.path(args$outdir, "trajectory_lineages.png"), .p1, width = 6.5, height = 5.5, dpi = 200)
+ggsave(file.path(args$outdir, "trajectory_lineages.pdf"), .p1, width = 6.5, height = 5.5)
+.p2 <- ggplot(.df, aes(Dim1, Dim2, color = pseudotime)) +
+  geom_point(size = 1.1) +
+  geom_path(data = .curve_df, aes(Dim1, Dim2, group = lineage), color = "black",
+            linewidth = 0.7, inherit.aes = FALSE) +
+  scale_color_viridis_c(option = "C", na.value = "grey85") +
+  labs(x = .xl, y = .yl, title = "Pseudotime (lineage 1)") +
+  theme_bw(base_size = 11) + theme(panel.grid = element_blank())
+ggsave(file.path(args$outdir, "trajectory_pseudotime.png"), .p2, width = 6.8, height = 5.5, dpi = 200)
+ggsave(file.path(args$outdir, "trajectory_pseudotime.pdf"), .p2, width = 6.8, height = 5.5)
+
 if (requireNamespace("tradeSeq", quietly = TRUE)) {
   counts <- as.matrix(SingleCellExperiment::counts(sce))
   set.seed(1)
