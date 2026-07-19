@@ -1,0 +1,53 @@
+{
+  "id": "scrna_pub_figures",
+  "title": "单细胞标准分析出图(Seurat)",
+  "title_en": "scRNA-seq standard analysis (Seurat)",
+  "category": "bio",
+  "family": "单细胞",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T2",
+  "entry": "toolkit/modules/08_singlecell_spatial_trajectory/046_scrna_publication_figures/046_scRNA_publication_figures.R",
+  "workdir": "toolkit/modules/08_singlecell_spatial_trajectory/046_scrna_publication_figures",
+  "description": "单细胞 RNA-seq 标准分析一条龙(Seurat):质控 → 归一化 → 高变基因 → PCA → 聚类 → UMAP/tSNE → FindAllMarkers,输出 UMAP、marker 热图/点图、FeaturePlot、小提琴图等发表级图。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "counts 表达矩阵 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "mem_axis": "n_cols",
+      "example": "example_data/counts.csv",
+      "spec": "原始 counts 矩阵:首列基因名,其余每列一个细胞。稀疏大矩阵建议先在 R 里转好再导出。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "genes": {"type": "string", "title": "要展示的 marker 基因(逗号分隔,留空=自动)", "default": ""},
+      "resolution": {"type": "number", "title": "聚类分辨率", "default": 0.5},
+      "npcs": {"type": "integer", "title": "PCA 主成分数", "default": 20},
+      "minfeature": {"type": "integer", "title": "细胞最少基因数(QC)", "default": 100}
+    }
+  },
+  "param_flags": {"genes": "--genes", "resolution": "--resolution", "npcs": "--npcs", "minfeature": "--minfeature"},
+  "cite_pkgs": ["Seurat"],
+  "outputs": [
+    {"glob": "*.png", "display": "image"},
+    {"glob": "*.csv", "display": "table"}
+  ],
+  "mem_hint": {
+    "model": "scrna_dense",
+    "killer_dim": "细胞数 × HVG",
+    "matrix_copies": 3,
+    "hvg": 2000,
+    "calibrated": false,
+    "note": "★单细胞:内存随细胞数×高变基因增长。上万细胞可能触发黄/红灯,建议下采样或减少 HVG。"
+  },
+  "stage": "S5",
+  "item_order": 5
+}
