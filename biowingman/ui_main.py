@@ -363,9 +363,13 @@ class MainWindow:
         self.map_frame = ttk.Frame(top)
         self.map_frame.pack(fill="x", pady=(2, 0))
 
-        # 参数段
-        self.hdr_params = ttk.Label(top, style="Section.TLabel")
-        self.hdr_params.pack(anchor="w", pady=(12, 2))
+        # 参数段(段头一行:标题 + 恢复默认)
+        prow = ttk.Frame(top)
+        prow.pack(fill="x", pady=(12, 2))
+        self.hdr_params = ttk.Label(prow, style="Section.TLabel")
+        self.hdr_params.pack(side="left", anchor="w")
+        self.btn_reset = ttk.Button(prow, style="Toolbutton", command=self._reset_params)
+        self.btn_reset.pack(side="right")
         ttk.Separator(top, orient="horizontal").pack(fill="x", pady=(0, 6))
         self.params_host = ttk.Frame(top)   # 缓存的表单挂这里
         self.params_host.pack(fill="x")
@@ -470,6 +474,7 @@ class MainWindow:
         self.btn_cancel.config(text=I18N.t("cancel"))
         self.hdr_data.config(text=I18N.t("data"))
         self.hdr_params.config(text=I18N.t("parameters"))
+        self.btn_reset.config(text=I18N.t("reset_defaults"))
         self._toggle_log(self._log_open)          # 重贴折叠钮文案(▸/▾ + 日志)
         self.results.retitle()
         self._apply_r_status()
@@ -535,6 +540,10 @@ class MainWindow:
         self._rebuild_map()
         self._schedule_redlight()
         self._update_run_button()
+
+    def _reset_params(self):
+        if self._cur_form:
+            self._cur_form.reset()
 
     def _reset_run_ui(self):
         """复位运行态 UI(切方法取消旧 run、或 run 结束时统一收尾用)。"""

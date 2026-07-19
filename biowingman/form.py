@@ -9,7 +9,8 @@ class ParamForm(ttk.Frame):
     def __init__(self, master, schema):
         super().__init__(master)
         self.vars = {}
-        props = (schema or {}).get("properties", {})
+        self._schema = schema or {}
+        props = self._schema.get("properties", {})
         row = 0
         for key, spec in props.items():
             title = spec.get("title", key)
@@ -39,6 +40,19 @@ class ParamForm(ttk.Frame):
                 row += 1
         self.columnconfigure(0, minsize=120)
         self.columnconfigure(1, weight=1)
+
+    def reset(self):
+        """把所有参数恢复到 schema 默认值。"""
+        props = self._schema.get("properties", {})
+        for key, (var, typ) in self.vars.items():
+            spec = props.get(key, {})
+            d = spec.get("default")
+            if typ == "boolean":
+                var.set(bool(d))
+            elif "enum" in spec:
+                var.set(str(d) if d is not None else str(spec["enum"][0]))
+            else:
+                var.set("" if d is None else str(d))
 
     def values(self) -> dict:
         out = {}

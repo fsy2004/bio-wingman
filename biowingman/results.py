@@ -36,10 +36,11 @@ class ResultsView(ttk.Frame):
             b.pack(side="left", padx=(0, 4))
         ttk.Separator(bar, orient="vertical").pack(side="left", fill="y", padx=6)
         # 簇 B:整体
+        self.btn_exportall = ttk.Button(bar, style="Toolbutton", command=self._export_all)
         self.btn_repro = ttk.Button(bar, style="Toolbutton", command=self._save_repro)
         self.btn_report = ttk.Button(bar, style="Toolbutton", command=self._save_report)
         self.btn_open = ttk.Button(bar, style="Toolbutton", command=self._open)
-        for b in (self.btn_repro, self.btn_report, self.btn_open):
+        for b in (self.btn_exportall, self.btn_repro, self.btn_report, self.btn_open):
             b.pack(side="left", padx=(0, 4))
 
         self.nb = ttk.Notebook(self)
@@ -56,6 +57,7 @@ class ResultsView(ttk.Frame):
         self.btn_copyimg.config(text=I18N.t("copy_image"))
         self.btn_copy.config(text=I18N.t("copy_table"))
         self.btn_savetbl.config(text=I18N.t("save_table"))
+        self.btn_exportall.config(text=I18N.t("export_all"))
         self.btn_repro.config(text=I18N.t("export_script"))
         self.btn_report.config(text=I18N.t("export_report"))
         self.btn_open.config(text=I18N.t("open_folder"))
@@ -114,7 +116,30 @@ class ResultsView(ttk.Frame):
         has_repro = bool(self.outdir and os.path.exists(os.path.join(self.outdir, "reproduce.R")))
         self.btn_repro.config(state="normal" if has_repro else "disabled")
         self.btn_report.config(state="normal" if (self._outputs and self._manifest) else "disabled")
+        self.btn_exportall.config(state="normal" if self._outputs else "disabled")
         self.btn_open.config(state="normal" if self.outdir else "disabled")
+
+    def _export_all(self):
+        """一键把本次全部产物(PNG/PDF/CSV)拷到用户指定文件夹——做论文配图常用。"""
+        from tkinter import messagebox
+        if not self._outputs:
+            return
+        # 连同每张 PNG 对应的 PDF 一起导(矢量图投稿要用)
+        files = set(self._outputs)
+        for o in self._outputs:
+            if o.lower().endswith(".png") and os.path.exists(o[:-4] + ".pdf"):
+                files.add(o[:-4] + ".pdf")
+        dst = filedialog.askdirectory(title=I18N.t("export_all"))
+        if not dst:
+            return
+        n = 0
+        for f in sorted(files):
+            try:
+                shutil.copyfile(f, os.path.join(dst, os.path.basename(f)))
+                n += 1
+            except Exception:
+                pass
+        messagebox.showinfo("Bio Wingman", I18N.t("export_all_done", n=n, d=dst))
 
     def _save_png(self):
         p = self._cur_path()
