@@ -32,6 +32,10 @@ if (-not $py) {
   Write-Host ("[就绪] Python:{0}" -f (python --version)) -ForegroundColor Green
   Write-Host ("  计划:pip 安装 {0}(源:{1})" -f ($req.python_packages -join ", "), $PipIndex)
   python -m pip install -i $PipIndex --trusted-host $PipTrustedHost @($req.python_packages)
+  if ($req.python_analysis_packages) {
+    Write-Host ("  计划:pip 安装单细胞/空间分析包({0} 个,体量较大,只用 R 方法可 Ctrl-C 跳过)..." -f $req.python_analysis_packages.Count) -ForegroundColor DarkGray
+    python -m pip install -i $PipIndex --trusted-host $PipTrustedHost @($req.python_analysis_packages)
+  }
 }
 Write-Host ""
 

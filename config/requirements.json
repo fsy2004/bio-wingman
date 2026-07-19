@@ -12,6 +12,19 @@
     "Pillow": "PIL",
     "python-docx": "docx"
   },
+  "python_analysis_packages": [
+    "scanpy",
+    "anndata",
+    "squidpy",
+    "decoupler",
+    "scvelo",
+    "cellrank",
+    "commot",
+    "tangram-sc",
+    "rich",
+    "leidenalg"
+  ],
+  "python_analysis_note": "单细胞/空间 python 方法(squidpy/scVelo/CellRank/COMMOT/tangram/decoupler 等)所需;体量较大(数百 MB)。install.ps1 会装;只用 R 方法可跳过。",
   "r_packages": [
     "ggplot2",
     "ggrepel",

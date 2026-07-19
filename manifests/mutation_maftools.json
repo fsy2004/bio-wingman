@@ -1,0 +1,44 @@
+{
+  "id": "mutation_maftools",
+  "title": "体细胞突变分析(maftools oncoplot)",
+  "title_en": "Somatic mutation analysis (maftools)",
+  "category": "bio",
+  "family": "突变分析",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/20_mutation_methylation_proteome/522_mutation_maftools/522_mutation_maftools_pipeline.R",
+  "workdir": "toolkit/modules/20_mutation_methylation_proteome/522_mutation_maftools",
+  "description": "体细胞突变队列分析(maftools):Top 突变基因 oncoplot(瀑布图)+ 突变类型汇总图 + 样本/基因突变汇总表。内置示例为 maftools 自带的 TCGA-LAML 队列。",
+  "inputs": [
+    {
+      "name": "maf",
+      "flag": "--maf",
+      "label": "MAF 突变文件(.maf / .maf.gz)",
+      "format": "maf",
+      "required": true,
+      "primary": true,
+      "mem_axis": "n_rows",
+      "example": "example_data/tcga_laml.maf.gz",
+      "spec": "标准 MAF 文件:含 Hugo_Symbol、Tumor_Sample_Barcode、Variant_Classification、Chromosome、Start_Position 等列;支持 .gz。"
+    }
+  ],
+  "params_schema": {"type": "object", "properties": {}},
+  "param_flags": {},
+  "cite_pkgs": ["maftools"],
+  "outputs": [
+    {"glob": "*.png", "display": "image"},
+    {"glob": "*.csv", "display": "table"}
+  ],
+  "mem_hint": {
+    "model": "linear",
+    "killer_dim": "突变记录数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "MAF 为突变记录长表,内存开销小;大队列 oncoplot 绘制稍慢。"
+  },
+  "stage": "S5",
+  "item_order": 45
+}
