@@ -1,0 +1,61 @@
+{
+  "id": "cellchat_communication",
+  "title": "细胞-细胞通讯(CellChat)",
+  "title_en": "Cell-cell communication (CellChat)",
+  "category": "bio",
+  "family": "单细胞",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T2",
+  "entry": "toolkit/modules/16_spatial_communication/cellchat_communication/cellchat_communication.R",
+  "workdir": "toolkit/modules/16_spatial_communication/cellchat_communication",
+  "description": "细胞-细胞通讯分析(CellChat,纯本地,无需联网/API):按配体-受体数据库推断细胞类型间的通讯,输出互作数/强度圈图、配体-受体气泡图、推断通讯表与各细胞类型收发强度。",
+  "inputs": [
+    {
+      "name": "counts",
+      "flag": "--counts",
+      "label": "表达 counts 矩阵 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "mem_axis": "n_cols",
+      "example": "example_data/counts.csv",
+      "spec": "★需真实基因符号(CellChat 按基因符号匹配配体-受体):首列基因 Symbol,其余每列一个细胞。可用 GEO 下载的单细胞 counts。"
+    },
+    {
+      "name": "meta",
+      "flag": "--meta",
+      "label": "细胞类型注释 CSV(次输入)",
+      "format": "csv",
+      "required": false,
+      "primary": false,
+      "example": "example_data/meta.csv",
+      "spec": "两列:细胞名(与 counts 列对应)、细胞类型(见 celltype_col)。当前固定用内置示例。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "celltype_col": {"type": "string", "title": "细胞类型列名", "default": "celltype"},
+      "species": {"type": "string", "title": "物种(L-R 数据库)", "default": "human", "enum": ["human", "mouse"]}
+    }
+  },
+  "param_flags": {"celltype_col": "--celltype_col", "species": "--species"},
+  "cite_pkgs": ["CellChat"],
+  "outputs": [
+    {"glob": "*.png", "display": "image"},
+    {"glob": "*.csv", "display": "table"}
+  ],
+  "mem_hint": {
+    "model": "scrna_dense",
+    "killer_dim": "细胞数 × 基因数",
+    "matrix_copies": 3,
+    "hvg": 2000,
+    "calibrated": false,
+    "note": "computeCommunProb 置换较耗时;上万细胞会明显变慢,可先下采样。"
+  },
+  "stage": "S5",
+  "item_order": 65
+}
