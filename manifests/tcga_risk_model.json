@@ -1,0 +1,58 @@
+{
+  "id": "tcga_risk_model",
+  "title": "TCGA 预后风险模型评估",
+  "title_en": "TCGA prognostic risk model",
+  "category": "bio",
+  "family": "生存分析",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/12_tcga_prognosis/057_tcga_prognostic_risk_model/057_prognostic_risk_model.R",
+  "workdir": "toolkit/modules/12_tcga_prognosis/057_tcga_prognostic_risk_model",
+  "description": "预后风险模型评估:风险因子/生存状态散点 + KM 曲线 + 时间依赖 ROC + 基因表达热图。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "风险评分表 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "example": "example_data/risk.csv",
+      "spec": "CSV 含 futime(天)、fustat(0/1)、riskScore、risk(low|high),其余数值列为风险基因表达。",
+      "mem_axis": "n_rows"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {}
+  },
+  "param_flags": {},
+  "cite_pkgs": [
+    "survival",
+    "survminer",
+    "timeROC",
+    "ComplexHeatmap"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "linear",
+    "killer_dim": "样本数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "预后风险模型评估:风险因子/生存状态散点 + KM 曲线 + 时间依赖 ROC + 基因表达热图。"
+  },
+  "stage": "S7",
+  "item_order": 90
+}

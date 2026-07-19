@@ -1,0 +1,52 @@
+{
+  "id": "mr_twosample",
+  "title": "双样本 MR 因果推断",
+  "title_en": "Two-sample MR (IVW/Egger/WM)",
+  "category": "bio",
+  "family": "孟德尔随机化",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/09_mendelian_randomization/032_mr_twosamplemr/032_MR_analysis.R",
+  "workdir": "toolkit/modules/09_mendelian_randomization/032_mr_twosamplemr",
+  "description": "双样本孟德尔随机化:IVW 主分析 + MR-Egger + 加权中位数 + 散点/漏斗/留一图,评估暴露→结局的因果。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "harmonise 后的 MR 数据 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "example": "example_data/harmonized_data.csv",
+      "spec": "每行一个 SNP,需列 SNP、beta.exposure、se.exposure、beta.outcome、se.outcome(harmonise 后)。",
+      "mem_axis": "n_rows"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {}
+  },
+  "param_flags": {},
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "mr_linear",
+    "killer_dim": "SNP 数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "双样本孟德尔随机化:IVW 主分析 + MR-Egger + 加权中位数 + 散点/漏斗/留一图,评估暴露→结局的因果。"
+  },
+  "stage": "S6",
+  "item_order": 10
+}

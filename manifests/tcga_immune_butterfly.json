@@ -1,0 +1,83 @@
+{
+  "id": "tcga_immune_butterfly",
+  "title": "基因-免疫双侧蝴蝶图",
+  "title_en": "Gene-immune butterfly plot",
+  "category": "bio",
+  "family": "免疫浸润",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/12_tcga_prognosis/060_tcga_immune_butterfly/060_immune_butterfly.R",
+  "workdir": "toolkit/modules/12_tcga_prognosis/060_tcga_immune_butterfly",
+  "description": "以目标基因表达高低分组,双侧蝴蝶图对比两组免疫细胞浸润/检查点表达差异(Spearman + 组间检验)。",
+  "inputs": [
+    {
+      "name": "expr",
+      "flag": "--expr",
+      "label": "表达矩阵 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "example": "example_data/expression.csv",
+      "spec": "基因表达矩阵:行=基因,含目标基因 + 免疫相关基因。",
+      "mem_axis": "n_rows"
+    },
+    {
+      "name": "immune",
+      "flag": "--immune",
+      "label": "免疫细胞比例 CSV(次输入)",
+      "format": "csv",
+      "required": false,
+      "primary": false,
+      "example": "example_data/immune_fraction.csv",
+      "spec": "样本×免疫细胞比例(首列 Sample)。当前固定用内置示例。"
+    },
+    {
+      "name": "checkpoints",
+      "flag": "--checkpoints",
+      "label": "免疫检查点基因列表(次输入)",
+      "format": "csv",
+      "required": false,
+      "primary": false,
+      "example": "example_data/checkpoint_genes.txt",
+      "spec": "检查点基因名列表。当前固定用内置示例。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "gene": {
+        "type": "string",
+        "title": "目标基因",
+        "default": "TYMS"
+      }
+    }
+  },
+  "param_flags": {
+    "gene": "--gene"
+  },
+  "cite_pkgs": [
+    "ggplot2"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "bulk_dense",
+    "killer_dim": "基因数 × 样本数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "以目标基因表达高低分组,双侧蝴蝶图对比两组免疫细胞浸润/检查点表达差异(Spearman + 组间检验)。"
+  },
+  "stage": "S5",
+  "item_order": 40
+}

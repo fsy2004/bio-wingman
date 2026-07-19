@@ -1,0 +1,74 @@
+{
+  "id": "tcga_gene_survival",
+  "title": "TCGA 单基因生存分析",
+  "title_en": "TCGA single-gene survival",
+  "category": "bio",
+  "family": "生存分析",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/12_tcga_prognosis/048_tcga_single_gene_survival/048_single_gene_survival.R",
+  "workdir": "toolkit/modules/12_tcga_prognosis/048_tcga_single_gene_survival",
+  "description": "按基因表达高低分组做 Kaplan-Meier 生存分析 + log-rank + 风险表,支持 OS/DSS/DFI/PFI 多终点。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "基因+生存终点 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "example": "example_data/gene_survival.csv",
+      "spec": "CSV:基因表达列 + OS/DSS/DFI/PFI 终点(<EP> 与 <EP>.time 成对)。",
+      "mem_axis": "n_rows"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "gene": {
+        "type": "string",
+        "title": "目标基因(留空=自动取表达列)",
+        "default": ""
+      },
+      "cutoff": {
+        "type": "string",
+        "title": "分组切点",
+        "default": "median",
+        "enum": [
+          "median",
+          "optimal"
+        ]
+      }
+    }
+  },
+  "param_flags": {
+    "gene": "--gene",
+    "cutoff": "--cutoff"
+  },
+  "cite_pkgs": [
+    "survival",
+    "survminer"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "linear",
+    "killer_dim": "样本数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "按基因表达高低分组做 Kaplan-Meier 生存分析 + log-rank + 风险表,支持 OS/DSS/DFI/PFI 多终点。"
+  },
+  "stage": "S7",
+  "item_order": 80
+}

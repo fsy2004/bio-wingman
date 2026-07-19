@@ -1,0 +1,55 @@
+{
+  "id": "fig_ridgeline",
+  "title": "山脊图(joyplot)",
+  "title_en": "Ridgeline / joyplot",
+  "category": "bio",
+  "family": "可视化",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/17_advanced_figures/513_ridgeline_plot/513_ridgeline_plot.R",
+  "workdir": "toolkit/modules/17_advanced_figures/513_ridgeline_plot",
+  "description": "山脊图(ggridges):把多个分组的分布密度堆叠错位显示,直观比较分布形状差异。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "分组数值长表 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "example": "example_data/groups_value.csv",
+      "spec": "两列:group、value。",
+      "mem_axis": "n_rows"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {}
+  },
+  "param_flags": {},
+  "cite_pkgs": [
+    "ggridges"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "linear",
+    "killer_dim": "行数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "山脊图(ggridges):把多个分组的分布密度堆叠错位显示,直观比较分布形状差异。"
+  },
+  "stage": "S8",
+  "item_order": 40
+}

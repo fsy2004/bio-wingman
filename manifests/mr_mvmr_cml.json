@@ -1,0 +1,75 @@
+{
+  "id": "mr_mvmr_cml",
+  "title": "多变量 MR(MVMR-cML)",
+  "title_en": "Multivariable MR (MVMR-cML)",
+  "category": "bio",
+  "family": "孟德尔随机化",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/09_mendelian_randomization/534_mvmr_cml_constrained/534_mvmr_cml_constrained.R",
+  "workdir": "toolkit/modules/09_mendelian_randomization/534_mvmr_cml_constrained",
+  "description": "约束极大似然多变量 MR(MVMR-cML-DP)对比 IVW,在多个相关暴露间估计各自对结局的独立因果效应。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "MVMR 汇总表 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "example": "example_data/mvmr_summary.csv",
+      "spec": "列:SNP、exposure、bx、bxse、outcome、by、byse(多暴露长表)。",
+      "mem_axis": "n_rows"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "n": {
+        "type": "integer",
+        "title": "结局 GWAS 样本量",
+        "default": 80000
+      },
+      "num_pert": {
+        "type": "integer",
+        "title": "数据扰动次数",
+        "default": 100
+      },
+      "kmax": {
+        "type": "integer",
+        "title": "最大无效 IV 数",
+        "default": 20
+      }
+    }
+  },
+  "param_flags": {
+    "n": "--n",
+    "num_pert": "--num_pert",
+    "kmax": "--kmax"
+  },
+  "cite_pkgs": [
+    "MendelianRandomization"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "mr_linear",
+    "killer_dim": "SNP 数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "约束极大似然多变量 MR(MVMR-cML-DP)对比 IVW,在多个相关暴露间估计各自对结局的独立因果效应。"
+  },
+  "stage": "S6",
+  "item_order": 20
+}

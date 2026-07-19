@@ -1,0 +1,55 @@
+{
+  "id": "fig_sankey",
+  "title": "桑基图 / 冲积图",
+  "title_en": "Sankey / alluvial (ggalluvial)",
+  "category": "bio",
+  "family": "可视化",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/17_advanced_figures/498_ggalluvial_sankey/498_alluvial_sankey.R",
+  "workdir": "toolkit/modules/17_advanced_figures/498_ggalluvial_sankey",
+  "description": "ggalluvial 桑基/冲积图,展示多层类别之间的流向关系(如药物-靶点-通路)。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "流向表 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "example": "example_data/flow_table.csv",
+      "spec": "CSV:前 2-4 列=各层类别(如 Drug/Hub/Pathway),末列 Freq=流量(缺省每行计 1)。",
+      "mem_axis": "n_rows"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {}
+  },
+  "param_flags": {},
+  "cite_pkgs": [
+    "ggalluvial"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "linear",
+    "killer_dim": "行数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "ggalluvial 桑基/冲积图,展示多层类别之间的流向关系(如药物-靶点-通路)。"
+  },
+  "stage": "S8",
+  "item_order": 20
+}

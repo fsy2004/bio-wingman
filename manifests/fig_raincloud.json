@@ -1,0 +1,69 @@
+{
+  "id": "fig_raincloud",
+  "title": "云雨图(分布+箱线+散点)",
+  "title_en": "Raincloud plot",
+  "category": "bio",
+  "family": "可视化",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/17_advanced_figures/512_raincloud_plot/512_raincloud_plot.R",
+  "workdir": "toolkit/modules/17_advanced_figures/512_raincloud_plot",
+  "description": "云雨图(半小提琴+箱线+抖动散点):比条形/箱线更完整地展示分布,是顶刊常用的分组比较图。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "分组数值长表 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "example": "example_data/groups_value.csv",
+      "spec": "两列:group、value。",
+      "mem_axis": "n_rows"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "value": {
+        "type": "string",
+        "title": "数值列名",
+        "default": "value"
+      },
+      "group": {
+        "type": "string",
+        "title": "分组列名",
+        "default": "group"
+      }
+    }
+  },
+  "param_flags": {
+    "value": "--value",
+    "group": "--group"
+  },
+  "cite_pkgs": [
+    "ggdist"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "linear",
+    "killer_dim": "行数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "云雨图(半小提琴+箱线+抖动散点):比条形/箱线更完整地展示分布,是顶刊常用的分组比较图。"
+  },
+  "stage": "S8",
+  "item_order": 30
+}

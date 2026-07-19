@@ -1,0 +1,69 @@
+{
+  "id": "fig_dumbbell_slope",
+  "title": "哑铃图 + 斜率图(配对变化)",
+  "title_en": "Dumbbell + slope plot",
+  "category": "bio",
+  "family": "可视化",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/17_advanced_figures/514_dumbbell_slope_plot/514_dumbbell_slope_plot.R",
+  "workdir": "toolkit/modules/17_advanced_figures/514_dumbbell_slope_plot",
+  "description": "哑铃图+斜率图展示配对前后变化(如处理前后),比配对条形更清楚地表达个体变化方向。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "配对数据 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "example": "example_data/paired.csv",
+      "spec": "三列:item、cond1、cond2(两种条件下的配对值)。",
+      "mem_axis": "n_rows"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "c1": {
+        "type": "string",
+        "title": "条件1 标签",
+        "default": "Control"
+      },
+      "c2": {
+        "type": "string",
+        "title": "条件2 标签",
+        "default": "Treated"
+      }
+    }
+  },
+  "param_flags": {
+    "c1": "--c1",
+    "c2": "--c2"
+  },
+  "cite_pkgs": [
+    "ggrepel"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "linear",
+    "killer_dim": "行数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "哑铃图+斜率图展示配对前后变化(如处理前后),比配对条形更清楚地表达个体变化方向。"
+  },
+  "stage": "S8",
+  "item_order": 50
+}

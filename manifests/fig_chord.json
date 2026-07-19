@@ -1,0 +1,55 @@
+{
+  "id": "fig_chord",
+  "title": "弦图(关系/相互作用)",
+  "title_en": "Chord diagram",
+  "category": "bio",
+  "family": "可视化",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/17_advanced_figures/515_chord_diagram/515_chord_diagram.R",
+  "workdir": "toolkit/modules/17_advanced_figures/515_chord_diagram",
+  "description": "circlize 弦图展示类别间的相互作用/流量矩阵(如细胞通讯、通路重叠)。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "相互作用矩阵 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "example": "example_data/interaction_matrix.csv",
+      "spec": "方阵:行=来源、列=去向,首列为行名。",
+      "mem_axis": "n_rows"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {}
+  },
+  "param_flags": {},
+  "cite_pkgs": [
+    "circlize"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "linear",
+    "killer_dim": "类别数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "circlize 弦图展示类别间的相互作用/流量矩阵(如细胞通讯、通路重叠)。"
+  },
+  "stage": "S8",
+  "item_order": 60
+}

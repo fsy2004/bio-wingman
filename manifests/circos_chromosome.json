@@ -1,0 +1,67 @@
+{
+  "id": "circos_chromosome",
+  "title": "染色体 circos 圈图",
+  "title_en": "Chromosome circos (ideogram)",
+  "category": "bio",
+  "family": "可视化",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/13_tf_regulation_circos/053_circlize_chromosome_circos/053_chromosome_circos.R",
+  "workdir": "toolkit/modules/13_tf_regulation_circos/053_circlize_chromosome_circos",
+  "description": "circlize 染色体 ideogram 圈图,把一批基因标注到染色体坐标上(基因组定位总览)。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "基因染色体位置 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "example": "example_data/gene_positions.csv",
+      "spec": "CSV:Gene、Chr(如 chr17)、Start、End。",
+      "mem_axis": "n_rows"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "genome": {
+        "type": "string",
+        "title": "参考基因组",
+        "default": "hg38",
+        "enum": [
+          "hg38",
+          "hg19"
+        ]
+      }
+    }
+  },
+  "param_flags": {
+    "genome": "--genome"
+  },
+  "cite_pkgs": [
+    "circlize"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "linear",
+    "killer_dim": "基因数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "circlize 染色体 ideogram 圈图,把一批基因标注到染色体坐标上(基因组定位总览)。"
+  },
+  "stage": "S8",
+  "item_order": 10
+}
