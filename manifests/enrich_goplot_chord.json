@@ -1,0 +1,83 @@
+{
+  "id": "enrich_goplot_chord",
+  "title": "GOplot 富集弦图 / 圈图",
+  "title_en": "GOplot chord / circle enrichment",
+  "category": "bio",
+  "family": "功能富集",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/02_enrichment/549_goplot_chord_enrichment/549_goplot_chord_enrichment.R",
+  "workdir": "toolkit/modules/02_enrichment/549_goplot_chord_enrichment",
+  "description": "用 GOplot 画富集弦图(GOChord)/圈图(GOCircle)/成员热图(GOHeat),表达基因-通路多对多关系,信息密度高于条形图。",
+  "inputs": [
+    {
+      "name": "david",
+      "flag": "--david",
+      "label": "富集结果表 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "example": "example_data/david_enrichment.csv",
+      "spec": "DAVID/clusterProfiler 风格富集表(含 Category/Term/Genes/PValue 等列)。",
+      "mem_axis": "n_rows"
+    },
+    {
+      "name": "genelist",
+      "flag": "--genelist",
+      "label": "全转录组 logFC CSV(次输入)",
+      "format": "csv",
+      "required": false,
+      "primary": false,
+      "example": "example_data/genelist_logFC.csv",
+      "spec": "两列:基因、logFC。当前固定用内置示例。"
+    },
+    {
+      "name": "genes",
+      "flag": "--genes",
+      "label": "重点基因子集 logFC CSV(次输入)",
+      "format": "csv",
+      "required": false,
+      "primary": false,
+      "example": "example_data/genes_subset_logFC.csv",
+      "spec": "两列:基因、logFC(用于成员图)。当前固定用内置示例。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "n_proc": {
+        "type": "integer",
+        "title": "取前 N 条通路",
+        "default": 7
+      }
+    }
+  },
+  "param_flags": {
+    "n_proc": "--n_proc"
+  },
+  "cite_pkgs": [
+    "GOplot"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "linear",
+    "killer_dim": "基因数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "用 GOplot 画富集弦图(GOChord)/圈图(GOCircle)/成员热图(GOHeat),表达基因-通路多对多关系,信息密度高于条形图。"
+  },
+  "stage": "S4",
+  "item_order": 30
+}

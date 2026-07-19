@@ -1,0 +1,70 @@
+{
+  "id": "ml_rra_consensus",
+  "title": "稳健秩聚合(RRA)共识特征",
+  "title_en": "Robust rank aggregation consensus",
+  "category": "bio",
+  "family": "机器学习特征",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/04_ml_feature_selection/554_rra_consensus_features/554_rra_consensus_features.R",
+  "workdir": "toolkit/modules/04_ml_feature_selection/554_rra_consensus_features",
+  "description": "用稳健秩聚合(RRA)综合多个特征选择方法的排名得到共识特征,并给 bootstrap Jaccard 稳定性。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "各方法排名长表 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "example": "example_data/method_ranks.csv",
+      "spec": "长表三列:method(方法名)、gene(基因)、rank(名次,越小越靠前)。",
+      "mem_axis": "n_rows"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "topk": {
+        "type": "integer",
+        "title": "每方法取 Top-K",
+        "default": 20
+      },
+      "nboot": {
+        "type": "integer",
+        "title": "Bootstrap 次数",
+        "default": 40
+      }
+    }
+  },
+  "param_flags": {
+    "topk": "--topk",
+    "nboot": "--nboot"
+  },
+  "cite_pkgs": [
+    "RobustRankAggreg",
+    "ComplexHeatmap"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "linear",
+    "killer_dim": "基因数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "用稳健秩聚合(RRA)综合多个特征选择方法的排名得到共识特征,并给 bootstrap Jaccard 稳定性。"
+  },
+  "stage": "S7",
+  "item_order": 60
+}

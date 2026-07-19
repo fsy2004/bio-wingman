@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import queue
+import shutil
 import subprocess
 import threading
 import time
@@ -172,6 +173,7 @@ class Run:
             return
 
         start = time.monotonic()
+        self._start_wall = time.time()      # 墙钟:用于判定 assets 里哪些图是本次生成
 
         def watchdog():
             while self.proc and self.proc.poll() is None:
@@ -189,9 +191,31 @@ class Run:
             pass
         self.proc.wait()
         rc = self.proc.returncode
+        self._harvest_assets()      # 有些模块把展示图写进自身 assets/ 而非 --outdir → 搬进 outdir
         for o in self.m.get("outputs", []):
             self.outputs += sorted(str(p) for p in self.outdir.glob(o["glob"]))
         self._finish(rc)
+
+    def _harvest_assets(self):
+        """部分复用模块把 png/pdf 写进 <workdir>/assets(README 展示图)而非 --outdir。
+        把本次运行(mtime 新于开始)生成的图搬进 run 目录,让结果区能展示;
+        用 mtime 门槛避免搬到上一次运行的旧图(失败的运行不会误显示陈图)。"""
+        try:
+            assets = ROOT / self.m["workdir"] / "assets"
+            if not assets.is_dir():
+                return
+            cutoff = getattr(self, "_start_wall", 0) - 1
+            for p in sorted(assets.glob("*.png")) + sorted(assets.glob("*.pdf")):
+                try:
+                    if p.stat().st_mtime < cutoff:
+                        continue
+                    dst = self.outdir / p.name
+                    if not dst.exists():
+                        shutil.copyfile(p, dst)
+                except Exception:
+                    continue
+        except Exception:
+            pass
 
     def _finish(self, rc):
         self.returncode = rc

@@ -5,8 +5,9 @@ Rplots.pdf
 *.pyc
 *.pyo
 
-# 模块被运行时会在自身目录生成 results/(纯运行产物,不入库;assets/ 是 README 示例图,保留)
+# 模块被运行时在自身目录生成的图/表(纯运行产物,由脚本再生,不入库)
 toolkit/**/results/
+toolkit/**/assets/
 
 # 编辑器 / 系统
 .DS_Store

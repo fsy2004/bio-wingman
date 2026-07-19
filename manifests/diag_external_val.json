@@ -1,0 +1,90 @@
+{
+  "id": "diag_external_val",
+  "title": "诊断模型外部验证(训练/验证 ROC)",
+  "title_en": "Diagnostic external validation",
+  "category": "bio",
+  "family": "诊断建模",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/05_diagnostic_models/063_geo_diagnostic_validation/063_diagnostic_validation.R",
+  "workdir": "toolkit/modules/05_diagnostic_models/063_geo_diagnostic_validation",
+  "description": "在独立验证集上评估诊断模型的泛化:训练/验证 ROC 对比 + 校准曲线,检验模型是否过拟合。",
+  "inputs": [
+    {
+      "name": "train",
+      "flag": "--train",
+      "label": "训练集表达矩阵 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "example": "example_data/train_matrix.csv",
+      "spec": "首列基因名,其余样本列(列名以分组后缀 _con/_dis 结尾)。",
+      "mem_axis": "n_rows"
+    },
+    {
+      "name": "valid",
+      "flag": "--valid",
+      "label": "验证集表达矩阵 CSV(次输入)",
+      "format": "csv",
+      "required": false,
+      "primary": false,
+      "example": "example_data/validation_matrix.csv",
+      "spec": "同结构的独立验证集。当前固定用内置示例。"
+    },
+    {
+      "name": "genes",
+      "flag": "--genes",
+      "label": "诊断基因列表 CSV(次输入)",
+      "format": "csv",
+      "required": false,
+      "primary": false,
+      "example": "example_data/diagnostic_genes.csv",
+      "spec": "单列基因名。当前固定用内置示例。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "ctrl": {
+        "type": "string",
+        "title": "对照组样本名后缀",
+        "default": "_con"
+      },
+      "case": {
+        "type": "string",
+        "title": "疾病组样本名后缀",
+        "default": "_dis"
+      }
+    }
+  },
+  "param_flags": {
+    "ctrl": "--ctrl",
+    "case": "--case"
+  },
+  "cite_pkgs": [
+    "pROC",
+    "rms"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "bulk_dense",
+    "killer_dim": "基因数 × 样本数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "在独立验证集上评估诊断模型的泛化:训练/验证 ROC 对比 + 校准曲线,检验模型是否过拟合。"
+  },
+  "stage": "S7",
+  "item_order": 70
+}

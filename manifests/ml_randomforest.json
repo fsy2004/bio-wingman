@@ -1,0 +1,91 @@
+{
+  "id": "ml_randomforest",
+  "title": "随机森林特征重要性",
+  "title_en": "Random forest feature importance",
+  "category": "bio",
+  "family": "机器学习特征",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/04_ml_feature_selection/014_randomforest_feature_selection/014_RandomForest_feature_selection.R",
+  "workdir": "toolkit/modules/04_ml_feature_selection/014_randomforest_feature_selection",
+  "description": "随机森林 Gini 重要性排序特征基因,输出 OOB 误差曲线与重要性棒棒糖图。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "表达矩阵 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "example": "example_data/Sample_Type_Matrix.csv",
+      "spec": "首列基因名,其余样本列(列名以分组后缀结尾)。",
+      "mem_axis": "n_rows"
+    },
+    {
+      "name": "genes",
+      "flag": "--genes",
+      "label": "候选基因列表 CSV(次输入)",
+      "format": "csv",
+      "required": false,
+      "primary": false,
+      "example": "example_data/candidate_genes.csv",
+      "spec": "单列基因名。当前固定用内置示例。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "ntree": {
+        "type": "integer",
+        "title": "树的数量",
+        "default": 500
+      },
+      "top": {
+        "type": "integer",
+        "title": "展示 Top 基因数",
+        "default": 15
+      },
+      "threshold": {
+        "type": "number",
+        "title": "重要性阈值",
+        "default": 1
+      },
+      "seed": {
+        "type": "integer",
+        "title": "随机种子",
+        "default": 2025
+      }
+    }
+  },
+  "param_flags": {
+    "ntree": "--ntree",
+    "top": "--top",
+    "threshold": "--threshold",
+    "seed": "--seed"
+  },
+  "cite_pkgs": [
+    "randomForest"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "bulk_dense",
+    "killer_dim": "基因数 × 样本数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "随机森林 Gini 重要性排序特征基因,输出 OOB 误差曲线与重要性棒棒糖图。"
+  },
+  "stage": "S7",
+  "item_order": 40
+}

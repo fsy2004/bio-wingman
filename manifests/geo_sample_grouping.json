@@ -1,0 +1,65 @@
+{
+  "id": "geo_sample_grouping",
+  "title": "GEO 样本分组标注 + 归一化",
+  "title_en": "GEO sample grouping & normalize",
+  "category": "bio",
+  "family": "标准化",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/03_transcriptomics_deg/009_geo_sample_grouping/009_GEO_sample_grouping.R",
+  "workdir": "toolkit/modules/03_transcriptomics_deg/009_geo_sample_grouping",
+  "description": "limma avereps + 自动 log2 + normalizeBetweenArrays,按分组给样本名加后缀,输出 Sample_Type_Matrix.csv 供下游诊断/ML 用。",
+  "inputs": [
+    {
+      "name": "expr",
+      "flag": "--expr",
+      "label": "基因表达矩阵 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "example": "example_data/geneMatrix.csv",
+      "spec": "首列基因名,其余为样本列。",
+      "mem_axis": "n_rows"
+    },
+    {
+      "name": "group",
+      "flag": "--group",
+      "label": "样本分组表 CSV(次输入)",
+      "format": "csv",
+      "required": false,
+      "primary": false,
+      "example": "example_data/sample_group.csv",
+      "spec": "两列:样本名(与 expr 列对应)、分组(con/tre)。当前固定用内置示例。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {}
+  },
+  "param_flags": {},
+  "cite_pkgs": [
+    "limma"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "linear",
+    "killer_dim": "样本数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "limma avereps + 自动 log2 + normalizeBetweenArrays,按分组给样本名加后缀,输出 Sample_Type_Matrix.csv 供下游诊断/ML 用。"
+  },
+  "stage": "S2",
+  "item_order": 10
+}

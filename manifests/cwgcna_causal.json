@@ -1,0 +1,91 @@
+{
+  "id": "cwgcna_causal",
+  "title": "CWGCNA 因果模块方向推断",
+  "title_en": "CWGCNA causal module direction",
+  "category": "bio",
+  "family": "共表达网络",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/11_wgcna/540_cwgcna_causal_module/540_cwgcna_causal_module.R",
+  "workdir": "toolkit/modules/11_wgcna/540_cwgcna_causal_module",
+  "description": "在 WGCNA 模块基础上推断模块↔性状的方向性(module→trait 正向 vs trait→module 反向),CWGCNA 缺失时以 WGCNA+lm 近似。",
+  "inputs": [
+    {
+      "name": "expr",
+      "flag": "--expr",
+      "label": "表达矩阵 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "example": "example_data/expr.csv",
+      "spec": "行=样本、列=基因(样本×基因);建议先筛高变基因。",
+      "mem_axis": "n_rows"
+    },
+    {
+      "name": "traits",
+      "flag": "--traits",
+      "label": "性状表 CSV(次输入)",
+      "format": "csv",
+      "required": false,
+      "primary": false,
+      "example": "example_data/traits.csv",
+      "spec": "样本行 + 目标性状列。当前固定用内置示例。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "trait": {
+        "type": "string",
+        "title": "目标性状列名",
+        "default": "trait"
+      },
+      "power": {
+        "type": "integer",
+        "title": "软阈值 power",
+        "default": 6
+      },
+      "minModuleSize": {
+        "type": "integer",
+        "title": "最小模块基因数",
+        "default": 30
+      },
+      "nperm": {
+        "type": "integer",
+        "title": "置换次数",
+        "default": 2000
+      }
+    }
+  },
+  "param_flags": {
+    "trait": "--trait",
+    "power": "--power",
+    "minModuleSize": "--minModuleSize",
+    "nperm": "--nperm"
+  },
+  "cite_pkgs": [
+    "WGCNA"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "wgcna_quadratic",
+    "killer_dim": "基因数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "在 WGCNA 模块基础上推断模块↔性状的方向性(module→trait 正向 vs trait→module 反向),CWGCNA 缺失时以 WGCNA+lm 近似。"
+  },
+  "stage": "S5",
+  "item_order": 30
+}

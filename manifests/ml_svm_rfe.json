@@ -1,0 +1,85 @@
+{
+  "id": "ml_svm_rfe",
+  "title": "SVM-RFE 递归特征消除",
+  "title_en": "SVM-RFE feature selection",
+  "category": "bio",
+  "family": "机器学习特征",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/04_ml_feature_selection/013_svm_rfe_feature_selection/013_SVM_RFE_feature_selection.R",
+  "workdir": "toolkit/modules/04_ml_feature_selection/013_svm_rfe_feature_selection",
+  "description": "SVM 递归特征消除(e1071)按交叉验证准确率选特征基因,输出 CV 准确率曲线与特征排名。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "表达矩阵 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "example": "example_data/Sample_Type_Matrix.csv",
+      "spec": "首列基因名,其余样本列(列名以分组后缀结尾)。",
+      "mem_axis": "n_rows"
+    },
+    {
+      "name": "genes",
+      "flag": "--genes",
+      "label": "候选基因列表 CSV(次输入)",
+      "format": "csv",
+      "required": false,
+      "primary": false,
+      "example": "example_data/candidate_genes.csv",
+      "spec": "单列基因名。当前固定用内置示例。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "maxk": {
+        "type": "integer",
+        "title": "最大特征数",
+        "default": 30
+      },
+      "folds": {
+        "type": "integer",
+        "title": "交叉验证折数",
+        "default": 5
+      },
+      "seed": {
+        "type": "integer",
+        "title": "随机种子",
+        "default": 12345
+      }
+    }
+  },
+  "param_flags": {
+    "maxk": "--maxk",
+    "folds": "--folds",
+    "seed": "--seed"
+  },
+  "cite_pkgs": [
+    "e1071"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "bulk_dense",
+    "killer_dim": "基因数 × 样本数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "SVM 递归特征消除(e1071)按交叉验证准确率选特征基因,输出 CV 准确率曲线与特征排名。"
+  },
+  "stage": "S7",
+  "item_order": 30
+}

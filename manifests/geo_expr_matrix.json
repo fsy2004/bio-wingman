@@ -1,0 +1,70 @@
+{
+  "id": "geo_expr_matrix",
+  "title": "GEO 表达矩阵整理(探针→基因)",
+  "title_en": "GEO expression matrix tidy",
+  "category": "bio",
+  "family": "数据获取",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/03_transcriptomics_deg/008_geo_expression_matrix/008_GEO_expr_matrix_tidy.R",
+  "workdir": "toolkit/modules/03_transcriptomics_deg/008_geo_expression_matrix",
+  "description": "把 GEO series matrix 按平台注释合并到基因层级,输出 geneMatrix.csv(数据前处理,产物为表)。",
+  "inputs": [
+    {
+      "name": "gse",
+      "flag": "--gse",
+      "label": "GEO series matrix (txt)",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "example": "example_data/GSE00000_series_matrix.txt",
+      "spec": "GEO 下载的 series_matrix.txt(以 ID_REF 为表头的表达值);行=探针,列=样本。",
+      "mem_axis": "n_rows"
+    },
+    {
+      "name": "gpl",
+      "flag": "--gpl",
+      "label": "平台注释 (txt,次输入)",
+      "format": "csv",
+      "required": false,
+      "primary": false,
+      "example": "example_data/GPL0000_demo_platform.txt",
+      "spec": "平台注释 txt,含探针→基因 Symbol 映射。当前固定用内置示例。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "symcol": {
+        "type": "string",
+        "title": "GPL 中基因 Symbol 所在列号",
+        "default": "2"
+      }
+    }
+  },
+  "param_flags": {
+    "symcol": "--symcol"
+  },
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "linear",
+    "killer_dim": "探针数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "把 GEO series matrix 按平台注释合并到基因层级,输出 geneMatrix.csv(数据前处理,产物为表)。"
+  },
+  "stage": "S0",
+  "item_order": 10
+}
