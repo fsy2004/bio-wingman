@@ -183,11 +183,11 @@ class MainWindow:
     def _init_sash(self):
         try:
             self._vpane.update_idletasks()
-            h = self._vpane.winfo_height()
-            if h < 80:                       # 尚未 realize,稍后重试(sashpos 过早会被忽略)
+            w = self._vpane.winfo_width()
+            if w < 80:                       # 尚未 realize,稍后重试(sashpos 过早会被忽略)
                 self.root.after(60, self._init_sash)
                 return
-            self._vpane.sashpos(0, int(h * 0.42))   # 控件区上占 ~42%,结果区下占多数
+            self._vpane.sashpos(0, min(int(w * 0.44), 470))   # 左=控件区 ~44%(上限470px),右=结果区占多数
         except Exception:
             pass
 
@@ -283,12 +283,11 @@ class MainWindow:
         # 日志抽屉:先建先 pack(side=bottom),让下面 expand 的 vpane 不吃掉它。
         # 默认收起(仅 26px 标题带:状态点 + 折叠钮 + 最新一行);出错自动展开。
         self._build_log_drawer(right)
-        # ★垂直 PanedWindow:控件区(top,weight0)在上、结果区(bottom,weight1)在下,固定 sash。
-        #   延后到构建完成再 pack(side=top),确保日志抽屉先占住底部。
-        vpane = ttk.PanedWindow(right, orient="vertical")
-        self._vpane = vpane
-        # 控件区:可滚动画布(内容多时上下滚、不裁切;滚轮由 _wheel 统一处理)
-        top_outer = ttk.Frame(vpane)
+        # ★右侧 = 两页切换 Notebook:设置页(方法/数据/参数/运行)| 结果页(图表)。
+        #   两页各占满宽度,避免挤在一屏;延后到构建完再 pack(side=top),让日志抽屉先占住底部。
+        self.rnb = ttk.Notebook(right)
+        # 设置页:可滚动画布(内容多时上下滚、不裁切;滚轮由 _wheel 统一处理)
+        top_outer = ttk.Frame(self.rnb)
         self._top_canvas = tk.Canvas(top_outer, highlightthickness=0, borderwidth=0, background=theme.CANVAS)
         top_vsb = ttk.Scrollbar(top_outer, orient="vertical", command=self._top_canvas.yview)
         self._top_canvas.configure(yscrollcommand=top_vsb.set)
@@ -298,14 +297,13 @@ class MainWindow:
         self._top_win = self._top_canvas.create_window((0, 0), window=top, anchor="nw")
         top.bind("<Configure>", lambda e: self._top_canvas.configure(scrollregion=self._top_canvas.bbox("all")))
         self._top_canvas.bind("<Configure>", lambda e: self._top_canvas.itemconfig(self._top_win, width=e.width))
-        bottom = ttk.Frame(vpane)
 
         # 方法标题 + 次级(另一语言)
-        self.lbl_method = ttk.Label(top, style="Method.TLabel", wraplength=720)
+        self.lbl_method = ttk.Label(top, style="Method.TLabel", wraplength=680)
         self.lbl_method.pack(anchor="w")
-        self.lbl_sub = ttk.Label(top, style="Muted.TLabel", wraplength=720)
+        self.lbl_sub = ttk.Label(top, style="Muted.TLabel", wraplength=680)
         self.lbl_sub.pack(anchor="w", pady=(1, 2))
-        self.lbl_desc = ttk.Label(top, style="Body.TLabel", wraplength=720, justify="left")   # 方法说明
+        self.lbl_desc = ttk.Label(top, style="Body.TLabel", wraplength=680, justify="left")   # 方法说明
         self.lbl_desc.pack(anchor="w", pady=(0, 8))
 
         # 数据段
@@ -314,17 +312,18 @@ class MainWindow:
         ttk.Separator(top, orient="horizontal").pack(fill="x", pady=(0, 6))
         ds = ttk.Frame(top)
         ds.pack(fill="x")
+        # 数据源:单行排布(设置页整宽放得下),单语言标签
         self.rb_ex = ttk.Radiobutton(ds, variable=self.data_source, value="example", command=self._on_source)
         self.rb_ex.grid(row=0, column=0, sticky="w", padx=(0, 16))
         self.rb_mine = ttk.Radiobutton(ds, variable=self.data_source, value="mine", command=self._on_source)
-        self.rb_mine.grid(row=0, column=1, sticky="w")
+        self.rb_mine.grid(row=0, column=1, sticky="w", padx=(0, 16))
         self.rb_paste = ttk.Radiobutton(ds, variable=self.data_source, value="paste", command=self._on_source)
         self.rb_paste.grid(row=0, column=2, sticky="w", padx=(0, 16))
         if _HAS_TKSHEET:
             self.rb_grid = ttk.Radiobutton(ds, variable=self.data_source, value="grid", command=self._on_source)
             self.rb_grid.grid(row=0, column=3, sticky="w", padx=(0, 16))
         self.btn_file = ttk.Button(ds, style="Toolbutton", command=self._choose_file)
-        self.btn_file.grid(row=0, column=4, sticky="w", padx=16)
+        self.btn_file.grid(row=0, column=4, sticky="w", padx=(8, 0))
         self.lbl_file = ttk.Label(ds, style="Muted.TLabel")
         self.lbl_file.grid(row=1, column=0, columnspan=5, sticky="w", pady=(4, 0))
         self.lbl_cols = ttk.Label(ds, style="Muted.TLabel", wraplength=680, justify="left")
@@ -381,13 +380,11 @@ class MainWindow:
         self.btn_run.pack(side="left")
         self.btn_cancel = ttk.Button(rowb, style="Toolbutton", command=self._cancel)
 
-        # 结果区直接作为下 pane 主体(不再与日志平权塞进 Notebook)→ 结果常驻为主
-        self.results = ResultsView(bottom, on_open_folder=self._open_folder)
-        self.results.pack(fill="both", expand=True)
-        vpane.add(top_outer, weight=0)
-        vpane.add(bottom, weight=1)
-        vpane.pack(side="top", fill="both", expand=True)      # ★在日志抽屉 pack(bottom)之后
-        self.root.after(80, lambda: self._init_sash())
+        # 结果页(第二个标签页)
+        self.results = ResultsView(self.rnb, on_open_folder=self._open_folder)
+        self.rnb.add(top_outer, text=I18N.t("tab_setup"))
+        self.rnb.add(self.results, text=I18N.t("tab_results"))
+        self.rnb.pack(side="top", fill="both", expand=True)   # ★在日志抽屉 pack(bottom)之后
         self.root.bind_all("<MouseWheel>", self._wheel)
         # 禁掉这些控件的类级默认滚轮:否则与统一 _wheel 双滚,且划过下拉框会误改选项
         for _cls in ("Treeview", "Text", "TCombobox"):
@@ -461,20 +458,22 @@ class MainWindow:
     def _on_lang(self):
         self._relabel_menu()
         self.btn_lang.config(text=I18N.t("lang_button"))
-        self.rb_ex.config(text=I18N.both("use_example"))
-        self.rb_mine.config(text=I18N.both("use_mine"))
-        self.rb_paste.config(text=I18N.both("use_paste"))
+        self.rb_ex.config(text=I18N.t("use_example"))     # 单语言(按当前界面语言)
+        self.rb_mine.config(text=I18N.t("use_mine"))
+        self.rb_paste.config(text=I18N.t("use_paste"))
         self.btn_file.config(text=I18N.t("choose_file"))
         self.btn_paste_use.config(text=I18N.t("paste_use"))
         self.lbl_paste_hint.config(text=I18N.t("paste_hint"))
         if _HAS_TKSHEET:
-            self.rb_grid.config(text=I18N.both("use_grid"))
+            self.rb_grid.config(text=I18N.t("use_grid"))
             self.btn_grid_use.config(text=I18N.t("grid_use"))
             self.lbl_grid_hint.config(text=I18N.t("grid_hint"))
         self.btn_cancel.config(text=I18N.t("cancel"))
         self.hdr_data.config(text=I18N.t("data"))
         self.hdr_params.config(text=I18N.t("parameters"))
         self.btn_reset.config(text=I18N.t("reset_defaults"))
+        self.rnb.tab(0, text=I18N.t("tab_setup"))         # 两页切换标签
+        self.rnb.tab(1, text=I18N.t("tab_results"))
         self._toggle_log(self._log_open)          # 重贴折叠钮文案(▸/▾ + 日志)
         self.results.retitle()
         self._apply_r_status()
@@ -531,6 +530,10 @@ class MainWindow:
         self.data_source.set("example")
         self.user_file = None
         self.paste_frame.pack_forget()
+        try:
+            self.rnb.select(0)               # 选方法 → 回「设置」页(运行完再自动切「结果」)
+        except Exception:
+            pass
         self._render_header()
         self._refresh_input_card()
         self._swap_form(mid)
@@ -581,7 +584,7 @@ class MainWindow:
         self.btn_tmpl.pack(side="left")
         self.btn_fill = ttk.Button(btns, style="Toolbutton", command=self._fill_example_grid)
         self.tv_schema = ttk.Treeview(self.card, show="headings", height=4, columns=("c", "d", "t", "r"))
-        for c, w in (("c", 130), ("d", 230), ("t", 66), ("r", 60)):
+        for c, w in (("c", 130), ("d", 230), ("t", 64), ("r", 60)):   # 合计 ~370,适配左侧窄控件列
             self.tv_schema.column(c, width=w, stretch=False, anchor="w")
         self.tv_schema.grid(row=1, column=0, sticky="ew", padx=8, pady=(2, 4))
         self.lbl_prev = ttk.Label(self.card, style="Muted.TLabel")
@@ -613,7 +616,7 @@ class MainWindow:
         is_text = (pin or {}).get("format") in (None, "csv", "tsv", "txt")   # 二进制(h5ad/rds/maf)/目录不预览
         if _HAS_TKSHEET:                          # 录入表格只对有列角色的方法有意义,否则隐藏(避免单列死表)
             (self.rb_grid.grid() if (shape and shape.get("columns")) else self.rb_grid.grid_remove())
-        self.card.config(text=I18N.both("input_format"))
+        self.card.config(text=I18N.t("input_format"))
         # 列规格表(有形状才显示)
         if shape and shape.get("columns"):
             for cid, key in (("c", "hdr_column"), ("d", "hdr_meaning"), ("t", "hdr_type"), ("r", "hdr_required")):
@@ -874,7 +877,7 @@ class MainWindow:
         self._headers = self._read_headers(self.user_file)
         if not self._headers:
             return
-        ttk.Label(self.map_frame, text=I18N.both("map_columns"), style="Section.TLabel").grid(
+        ttk.Label(self.map_frame, text=I18N.t("map_columns"), style="Section.TLabel").grid(
             row=0, column=0, columnspan=2, sticky="w", pady=(8, 3))
         opts = ["(无)"] + self._headers
         cols = shape["columns"]
@@ -1058,7 +1061,8 @@ class MainWindow:
         imgs = [o for o in r.outputs if o.lower().endswith(".png")]
         tbls = [o for o in r.outputs if o.lower().endswith(".csv")]
         if rc == 0:
-            self.results.show(r.outputs, r.outdir, r.m, r.params)   # 结果为主区,直接呈现
+            self.results.show(r.outputs, r.outdir, r.m, r.params)
+            self.rnb.select(1)                     # 自动切到「结果」页
             self._set_dot(theme.OK)
             self._set_status(I18N.t("done_ok", rc=rc, nimg=len(imgs), ntbl=len(tbls)))
             self._append_log("\n" + I18N.t("done_ok", rc=rc, nimg=len(imgs), ntbl=len(tbls)))
