@@ -1,0 +1,52 @@
+{
+  "id": "nmf_subtyping",
+  "title": "NMF + 共识聚类分子分型",
+  "title_en": "NMF consensus molecular subtyping",
+  "category": "bio",
+  "family": "多组学整合",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T2",
+  "entry": "toolkit/modules/19_multiomics_integration/084_nmf_consensus_clustering/084_NMF_consensus_subtyping.R",
+  "workdir": "toolkit/modules/19_multiomics_integration/084_nmf_consensus_clustering",
+  "description": "非负矩阵分解(NMF)+ 共识聚类做分子分型:按 cophenetic 系数自动选最优亚型数,输出共识矩阵热图、分型热图与样本分型表。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "特征矩阵 CSV(非负)",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "mem_axis": "n_rows",
+      "example": "example_data/feature_matrix.csv",
+      "spec": "首列特征名(基因/位点等),其余每列一个样本;值须非负(NMF 要求),如表达量或甲基化 beta。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "kmin": {"type": "integer", "title": "最小亚型数(秩)", "default": 2},
+      "kmax": {"type": "integer", "title": "最大亚型数(秩)", "default": 6},
+      "nrun": {"type": "integer", "title": "每个秩的 NMF 重复次数", "default": 10},
+      "k": {"type": "integer", "title": "手动指定亚型数(0=自动选)", "default": 0}
+    }
+  },
+  "param_flags": {"kmin": "--kmin", "kmax": "--kmax", "nrun": "--nrun", "k": "--k"},
+  "cite_pkgs": ["NMF", "ConsensusClusterPlus", "ComplexHeatmap"],
+  "outputs": [
+    {"glob": "*.png", "display": "image"},
+    {"glob": "*.csv", "display": "table"}
+  ],
+  "mem_hint": {
+    "model": "bulk_dense",
+    "killer_dim": "特征数 × 样本数",
+    "matrix_copies": 4,
+    "calibrated": false,
+    "note": "NMF 多秩×多次重复,特征数大时较慢;内存随特征×样本增长。"
+  },
+  "stage": "S5",
+  "item_order": 50
+}
