@@ -73,14 +73,20 @@ def build_report(manifest, params, outputs, outdir, dst):
         doc.add_paragraph(title_zh)
 
     doc.add_heading("Methods", level=2)
-    pkgs = _pkgs_for(manifest)
+    interp = manifest.get("interp", "Rscript")
+    if interp == "Rscript":
+        env_str, pkgs = _r_version(), _pkgs_for(manifest)
+    else:                                    # Python 方法:别错称用 R;cite 走包名(不调 R citation)
+        import sys
+        v = sys.version_info
+        env_str, pkgs = "Python %d.%d.%d" % (v.major, v.minor, v.micro), (manifest.get("cite_pkgs") or [])
     m = doc.add_paragraph()
     m.add_run("Software. ").bold = True
     if pkgs:
         m.add_run("Analyses were performed in %s using the %s package(s)."
-                  % (_r_version(), ", ".join(pkgs)))
+                  % (env_str, ", ".join(pkgs)))
     else:
-        m.add_run("Analyses were performed in %s." % _r_version())
+        m.add_run("Analyses were performed in %s." % env_str)
     if params:
         pstr = "; ".join("%s = %s" % (k, v) for k, v in params.items() if str(v) != "")
         if pstr:
