@@ -1,0 +1,73 @@
+{
+  "id": "proteomics_dep",
+  "title": "蛋白质组差异分析(limma)",
+  "title_en": "Proteomics DEP (limma)",
+  "category": "bio",
+  "family": "组学差异",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/20_mutation_methylation_proteome/524_proteomics_dep/524_proteomics_limma_msstats_pipeline.R",
+  "workdir": "toolkit/modules/20_mutation_methylation_proteome/524_proteomics_dep",
+  "description": "蛋白质组差异表达分析(limma):两组差异蛋白 + 火山图 + Top 差异蛋白热图。",
+  "inputs": [
+    {
+      "name": "matrix",
+      "flag": "--protein_matrix",
+      "label": "蛋白定量矩阵 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "mem_axis": "n_rows",
+      "example": "example_data/protein_matrix.csv",
+      "spec": "首列蛋白名,其余每列一个样本,值为 log2 强度。"
+    },
+    {
+      "name": "metadata",
+      "flag": "--metadata",
+      "label": "样本分组表 CSV(次输入)",
+      "format": "csv",
+      "required": false,
+      "primary": false,
+      "example": "example_data/metadata.csv",
+      "spec": "首列样本名(与矩阵列对应)+ 分组列(见 group_col)。当前固定用内置示例。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "group_col": {
+        "type": "string",
+        "title": "分组列名",
+        "default": "group"
+      }
+    }
+  },
+  "param_flags": {
+    "group_col": "--group_col"
+  },
+  "cite_pkgs": [
+    "limma"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "bulk_dense",
+    "killer_dim": "特征数 × 样本数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "蛋白质组差异表达分析(limma):两组差异蛋白 + 火山图 + Top 差异蛋白热图。"
+  },
+  "stage": "S3",
+  "item_order": 30
+}

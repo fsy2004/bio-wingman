@@ -1,0 +1,73 @@
+{
+  "id": "methylation_dmp",
+  "title": "甲基化差异探针分析(limma)",
+  "title_en": "Methylation DMP (limma)",
+  "category": "bio",
+  "family": "组学差异",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/20_mutation_methylation_proteome/523_methylation_dmp/523_methylation_minfi_champ_pipeline.R",
+  "workdir": "toolkit/modules/20_mutation_methylation_proteome/523_methylation_dmp",
+  "description": "甲基化差异探针分析(limma):两组间差异甲基化探针 + 火山图 + Top 差异探针热图。",
+  "inputs": [
+    {
+      "name": "matrix",
+      "flag": "--beta_matrix",
+      "label": "甲基化 beta 矩阵 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "mem_axis": "n_rows",
+      "example": "example_data/beta_matrix.csv",
+      "spec": "首列探针名(cg…),其余每列一个样本,值为 beta(0-1)。"
+    },
+    {
+      "name": "metadata",
+      "flag": "--metadata",
+      "label": "样本分组表 CSV(次输入)",
+      "format": "csv",
+      "required": false,
+      "primary": false,
+      "example": "example_data/metadata.csv",
+      "spec": "首列样本名(与矩阵列对应)+ 分组列(见 group_col)。当前固定用内置示例。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "group_col": {
+        "type": "string",
+        "title": "分组列名",
+        "default": "group"
+      }
+    }
+  },
+  "param_flags": {
+    "group_col": "--group_col"
+  },
+  "cite_pkgs": [
+    "limma"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "bulk_dense",
+    "killer_dim": "特征数 × 样本数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "甲基化差异探针分析(limma):两组间差异甲基化探针 + 火山图 + Top 差异探针热图。"
+  },
+  "stage": "S3",
+  "item_order": 20
+}

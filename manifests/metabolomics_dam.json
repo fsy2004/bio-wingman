@@ -1,0 +1,70 @@
+{
+  "id": "metabolomics_dam",
+  "title": "代谢组差异分析(t检验)",
+  "title_en": "Metabolomics DAM (t-test)",
+  "category": "bio",
+  "family": "组学差异",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/20_mutation_methylation_proteome/525_metabolomics_dam/525_metabolomics_metaboanalystR_pipeline.R",
+  "workdir": "toolkit/modules/20_mutation_methylation_proteome/525_metabolomics_dam",
+  "description": "代谢组差异分析(逐代谢物 t 检验 + BH 校正):两组差异代谢物 + 火山图 + Top 差异代谢物热图。",
+  "inputs": [
+    {
+      "name": "matrix",
+      "flag": "--metabolite_matrix",
+      "label": "代谢物矩阵 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "mem_axis": "n_rows",
+      "example": "example_data/metabolite_matrix.csv",
+      "spec": "首列代谢物名,其余每列一个样本;仅支持两组比较。"
+    },
+    {
+      "name": "metadata",
+      "flag": "--metadata",
+      "label": "样本分组表 CSV(次输入)",
+      "format": "csv",
+      "required": false,
+      "primary": false,
+      "example": "example_data/metadata.csv",
+      "spec": "首列样本名(与矩阵列对应)+ 分组列(见 group_col)。当前固定用内置示例。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "group_col": {
+        "type": "string",
+        "title": "分组列名",
+        "default": "group"
+      }
+    }
+  },
+  "param_flags": {
+    "group_col": "--group_col"
+  },
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "bulk_dense",
+    "killer_dim": "特征数 × 样本数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "代谢组差异分析(逐代谢物 t 检验 + BH 校正):两组差异代谢物 + 火山图 + Top 差异代谢物热图。"
+  },
+  "stage": "S3",
+  "item_order": 40
+}
