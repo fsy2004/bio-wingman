@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import os
 import queue
+import shutil
 import threading
 import tkinter as tk
 from tkinter import ttk, filedialog
@@ -44,6 +45,7 @@ class MainWindow:
         root.minsize(900, 600)
         self._build_menu()
         self._build_top()
+        self._build_status()     # 底部状态栏:接管运行反馈(须早于 body 的 pack 以占住底部)
         self._build_body()
         I18N.bind(self._on_lang)
         self._select_first()
@@ -166,7 +168,12 @@ class MainWindow:
 
     def _init_sash(self):
         try:
-            self._vpane.sashpos(0, 372)   # 固定分隔:控件区在上、结果区在下
+            self._vpane.update_idletasks()
+            h = self._vpane.winfo_height()
+            if h < 80:                       # 尚未 realize,稍后重试(sashpos 过早会被忽略)
+                self.root.after(60, self._init_sash)
+                return
+            self._vpane.sashpos(0, int(h * 0.42))   # 控件区上占 ~42%,结果区下占多数
         except Exception:
             pass
 
@@ -209,6 +216,26 @@ class MainWindow:
         self.btn_lang.pack(side="right")
         ttk.Separator(self.root, orient="horizontal").pack(side="top", fill="x")
 
+    # ---------- 底部状态栏 ----------
+    def _build_status(self):
+        bar = tk.Frame(self.root, bg=theme.SURFACE)
+        bar.pack(side="bottom", fill="x")           # ★须早于 body.pack 以占住底部
+        ttk.Separator(bar, orient="horizontal").pack(side="top", fill="x")
+        inner = tk.Frame(bar, bg=theme.SURFACE)
+        inner.pack(fill="x", padx=8, pady=2)
+        self.lbl_status = tk.Label(inner, bg=theme.SURFACE, fg=theme.MUTED, font=(theme.FONT, 9), anchor="w")
+        self.lbl_status.pack(side="left")
+        ttk.Sizegrip(inner).pack(side="right")
+        self.lbl_ctx = tk.Label(inner, bg=theme.SURFACE, fg=theme.MUTED, font=(theme.FONT, 9), anchor="e")
+        self.lbl_ctx.pack(side="right", padx=8)
+        self.pbar = ttk.Progressbar(inner, mode="indeterminate", length=120)   # 仅运行时 pack
+
+    def _set_status(self, text):
+        try:
+            self.lbl_status.config(text=text)
+        except Exception:
+            pass
+
     # ---------- 主体 ----------
     def _build_body(self):
         body = ttk.Frame(self.root)
@@ -216,11 +243,21 @@ class MainWindow:
 
         left = ttk.Frame(body, padding=(6, 6))
         left.pack(side="left", fill="y")
-        self.tree = ttk.Treeview(left, show="tree", selectmode="browse")
+        # 方法即时搜索框(带占位提示,免额外标签占行;中英双标题不分大小写子串匹配)
+        self.q_var = tk.StringVar()
+        self.ent_search = ttk.Entry(left, textvariable=self.q_var, foreground=theme.MUTED)
+        self.ent_search.pack(side="top", fill="x", pady=(0, 5))
+        self._search_ph = True
+        self.ent_search.bind("<FocusIn>", self._search_focus_in)
+        self.ent_search.bind("<FocusOut>", self._search_focus_out)
+        self.ent_search.bind("<KeyRelease>", self._search_key)
+        treewrap = ttk.Frame(left)
+        treewrap.pack(side="top", fill="both", expand=True)
+        self.tree = ttk.Treeview(treewrap, show="tree", selectmode="browse")
         self.tree.column("#0", width=230, minwidth=190)
-        self.tree.tag_configure("group", font=(theme.FONT, 9, "bold"))
-        self.tree.pack(side="left", fill="y", expand=True)
-        sb = ttk.Scrollbar(left, orient="vertical", command=self.tree.yview)
+        self.tree.tag_configure("group", font=(theme.FONT, 9, "bold"), background=theme.SURFACE)
+        self.tree.pack(side="left", fill="both", expand=True)
+        sb = ttk.Scrollbar(treewrap, orient="vertical", command=self.tree.yview)
         sb.pack(side="right", fill="y")
         self.tree.configure(yscrollcommand=sb.set)
         self.tree.bind("<<TreeviewSelect>>", self._on_select)
@@ -229,10 +266,12 @@ class MainWindow:
 
         right = ttk.Frame(body, padding=(14, 10))
         right.pack(side="left", fill="both", expand=True)
-        # ★垂直 PanedWindow:控件区(top)与结果区(bottom)用固定 sash 隔开,
-        #   改方法标题/参数不再牵动下方 Notebook 重排(实测省掉每次 ~60ms 卡顿)。
+        # 日志抽屉:先建先 pack(side=bottom),让下面 expand 的 vpane 不吃掉它。
+        # 默认收起(仅 26px 标题带:状态点 + 折叠钮 + 最新一行);出错自动展开。
+        self._build_log_drawer(right)
+        # ★垂直 PanedWindow:控件区(top,weight0)在上、结果区(bottom,weight1)在下,固定 sash。
+        #   延后到构建完成再 pack(side=top),确保日志抽屉先占住底部。
         vpane = ttk.PanedWindow(right, orient="vertical")
-        vpane.pack(fill="both", expand=True)
         self._vpane = vpane
         # 控件区:可滚动画布(内容多时上下滚、不裁切;滚轮由 _wheel 统一处理)
         top_outer = ttk.Frame(vpane)
@@ -301,6 +340,9 @@ class MainWindow:
             self.btn_grid_use.pack(anchor="w", pady=(4, 0))
             self._grid_roles = []
 
+        # 输入格式卡(选方法即出:所需列规格 + 示例前几行 + 下载模板/填示例)——只创建,由 _refresh_input_card 定位显隐
+        self._build_input_card(top)
+
         # 列映射面板(上传/粘贴 + 该方法有列形状时显示)
         self.map_frame = ttk.Frame(top)
         self.map_frame.pack(fill="x", pady=(2, 0))
@@ -319,11 +361,12 @@ class MainWindow:
         self.btn_run.pack(side="left")
         self.btn_cancel = ttk.Button(rowb, style="Toolbutton", command=self._cancel)
 
-        # 日志 / 结果
-        self.nb = ttk.Notebook(bottom)
-        self.nb.pack(fill="both", expand=True)
+        # 结果区直接作为下 pane 主体(不再与日志平权塞进 Notebook)→ 结果常驻为主
+        self.results = ResultsView(bottom, on_open_folder=self._open_folder)
+        self.results.pack(fill="both", expand=True)
         vpane.add(top_outer, weight=0)
         vpane.add(bottom, weight=1)
+        vpane.pack(side="top", fill="both", expand=True)      # ★在日志抽屉 pack(bottom)之后
         self.root.after(80, lambda: self._init_sash())
         self.root.bind_all("<MouseWheel>", self._wheel)
         # 禁掉这些控件的类级默认滚轮:否则与统一 _wheel 双滚,且划过下拉框会误改选项
@@ -332,17 +375,67 @@ class MainWindow:
                 self.root.unbind_class(_cls, "<MouseWheel>")
             except Exception:
                 pass
-        logf = ttk.Frame(self.nb)
-        self.log = tk.Text(logf, height=7, wrap="word", font=(theme.MONO, 9),
-                           background=theme.CANVAS, foreground=theme.TEXT,
-                           relief="flat", borderwidth=0)
-        lsb = ttk.Scrollbar(logf, orient="vertical", command=self.log.yview)
+
+    # ---------- 日志抽屉 ----------
+    def _build_log_drawer(self, parent):
+        self._log_open = False
+        drawer = ttk.Frame(parent)
+        drawer.pack(side="bottom", fill="x")          # ★先于 vpane.pack(side=top,expand)
+        ttk.Separator(drawer, orient="horizontal").pack(side="top", fill="x")
+        hdr = tk.Frame(drawer, bg=theme.SURFACE)
+        hdr.pack(side="top", fill="x")
+        self._dot = tk.Canvas(hdr, width=10, height=10, highlightthickness=0, bg=theme.SURFACE)
+        self._dot.pack(side="left", padx=(8, 6), pady=4)
+        self._dot_id = self._dot.create_oval(2, 2, 9, 9, fill=theme.MUTED, outline="")
+        self.btn_log = ttk.Button(hdr, style="Toolbutton", command=self._toggle_log)
+        self.btn_log.pack(side="left")
+        self.lbl_logtail = tk.Label(hdr, bg=theme.SURFACE, fg=theme.MUTED, font=(theme.FONT, 9), anchor="w")
+        self.lbl_logtail.pack(side="left", fill="x", expand=True, padx=8)
+        self._log_body = ttk.Frame(drawer)            # 折叠体:默认不 pack
+        self.log = tk.Text(self._log_body, height=8, wrap="word", font=(theme.MONO, 9),
+                           background=theme.CANVAS, foreground=theme.TEXT, relief="flat", borderwidth=0)
+        lsb = ttk.Scrollbar(self._log_body, orient="vertical", command=self.log.yview)
         self.log.configure(yscrollcommand=lsb.set, state="disabled")
         self.log.pack(side="left", fill="both", expand=True)
         lsb.pack(side="right", fill="y")
-        self.results = ResultsView(self.nb, on_open_folder=self._open_folder)
-        self.nb.add(logf, text="Log")
-        self.nb.add(self.results, text="Results")
+
+    def _toggle_log(self, force=None):
+        self._log_open = (not self._log_open) if force is None else bool(force)
+        if self._log_open:
+            self._log_body.pack(side="top", fill="both")
+        else:
+            self._log_body.pack_forget()
+        self.btn_log.config(text=("▾ " if self._log_open else "▸ ") + I18N.t("log"))
+
+    def _set_dot(self, color):
+        try:
+            self._dot.itemconfig(self._dot_id, fill=color)
+        except Exception:
+            pass
+
+    # ---------- 搜索框占位提示 ----------
+    def _search_focus_in(self, _evt=None):
+        if self._search_ph:
+            self.q_var.set("")
+            self.ent_search.config(foreground=theme.TEXT)
+            self._search_ph = False
+
+    def _search_focus_out(self, _evt=None):
+        if not self.q_var.get().strip():
+            self._search_ph = True
+            self.ent_search.config(foreground=theme.MUTED)
+            self.q_var.set(I18N.t("search_hint"))
+
+    def _search_key(self, _evt=None):
+        if not self._search_ph:
+            self._rebuild_tree(self.q_var.get().strip())
+
+    def _reset_search_placeholder(self):
+        """语言切换/初始:未聚焦且空时显示占位。"""
+        if self._search_ph or not self.q_var.get().strip():
+            self._search_ph = True
+            self.ent_search.config(foreground=theme.MUTED)
+            self.q_var.set(I18N.t("search_hint"))
 
     # ---------- 语言刷新 ----------
     def _on_lang(self):
@@ -361,13 +454,14 @@ class MainWindow:
         self.btn_cancel.config(text=I18N.t("cancel"))
         self.hdr_data.config(text=I18N.t("data"))
         self.hdr_params.config(text=I18N.t("parameters"))
-        self.nb.tab(0, text=I18N.t("log"))
-        self.nb.tab(1, text=I18N.t("results"))
+        self._toggle_log(self._log_open)          # 重贴折叠钮文案(▸/▾ + 日志)
         self.results.retitle()
         self._apply_r_status()
+        self._reset_search_placeholder()
         self._rebuild_tree()
         if self.sel:
             self._render_header()
+            self._refresh_input_card()
         else:
             self.lbl_method.config(text="Bio Wingman")
             self.lbl_sub.config(text=I18N.t("select_method"))
@@ -379,13 +473,19 @@ class MainWindow:
                               foreground=theme.OK if ok else theme.SIG)
 
     # ---------- 方法树 ----------
-    def _rebuild_tree(self):
+    def _rebuild_tree(self, query=""):
+        q = (query or "").lower()
         self.tree.delete(*self.tree.get_children())
         self._node_to_mid = {}
         lang = I18N.lang
         for key, zh, en, items in engine.grouped_methods():
+            hits = [m for m in items if (not q)
+                    or q in I18N.title_of(m).lower()
+                    or q in (str(m.get("title", "")) + str(m.get("title_en", ""))).lower()]
+            if not hits:
+                continue
             parent = self.tree.insert("", "end", text=(zh if lang == "zh" else en), open=True, tags=("group",))
-            for m in items:
+            for m in hits:
                 node = self.tree.insert(parent, "end", text=I18N.title_of(m))
                 self._node_to_mid[node] = m["id"]
         if self.sel:
@@ -410,6 +510,7 @@ class MainWindow:
         self.user_file = None
         self.paste_frame.pack_forget()
         self._render_header()
+        self._refresh_input_card()
         self._swap_form(mid)
         self._set_log("")
         self.results.clear()
@@ -426,6 +527,117 @@ class MainWindow:
         pin = engine.primary_input(m)
         spec = (pin or {}).get("spec", "")
         self.lbl_cols.config(text=(I18N.t("columns_needed") + ": " + spec) if spec else "")
+
+    # ---------- 输入格式卡(选方法即出:所需列 + 示例前几行 + 下载模板/填示例)----------
+    def _build_input_card(self, parent):
+        self.card = ttk.Labelframe(parent, style="Card.TLabelframe")
+        self.card.columnconfigure(0, weight=1)
+        btns = ttk.Frame(self.card)
+        btns.grid(row=0, column=0, sticky="w", padx=8, pady=(6, 2))
+        self.btn_tmpl = ttk.Button(btns, style="Toolbutton", command=self._download_template)
+        self.btn_tmpl.pack(side="left")
+        self.btn_fill = ttk.Button(btns, style="Toolbutton", command=self._fill_example_grid)
+        self.tv_schema = ttk.Treeview(self.card, show="headings", height=4, columns=("c", "d", "t", "r"))
+        for c, w in (("c", 130), ("d", 230), ("t", 66), ("r", 60)):
+            self.tv_schema.column(c, width=w, stretch=False, anchor="w")
+        self.tv_schema.grid(row=1, column=0, sticky="ew", padx=8, pady=(2, 4))
+        self.lbl_prev = ttk.Label(self.card, style="Muted.TLabel")
+        self.lbl_prev.grid(row=2, column=0, sticky="w", padx=8)
+        self.tv_prev = ttk.Treeview(self.card, show="headings", height=3)
+        self.tv_prev.grid(row=3, column=0, sticky="ew", padx=8, pady=(0, 8))
+
+    def _read_rows(self, path, n):
+        if not path or not os.path.exists(path):
+            return [], []
+        for enc in ("utf-8-sig", "gb18030", "latin-1"):
+            try:
+                with open(path, encoding=enc, newline="") as f:
+                    rows = [[c.strip() for c in r] for i, r in enumerate(csv.reader(f)) if i <= n]
+                return (rows[0] if rows else []), rows[1:n + 1]
+            except UnicodeDecodeError:
+                continue
+            except Exception:
+                return [], []
+        return [], []
+
+    def _refresh_input_card(self):
+        if not self.sel:
+            self.card.pack_forget()
+            return
+        shape = engine.shape_of(self.sel)
+        ex = engine.example_path(self.sel)
+        self.card.config(text=I18N.both("input_format"))
+        # 列规格表(有形状才显示)
+        if shape and shape.get("columns"):
+            for cid, key in (("c", "hdr_column"), ("d", "hdr_meaning"), ("t", "hdr_type"), ("r", "hdr_required")):
+                self.tv_schema.heading(cid, text=I18N.t(key))
+            self.tv_schema.delete(*self.tv_schema.get_children())
+            for col in shape["columns"]:
+                self.tv_schema.insert("", "end", values=(
+                    col.get("role"), f'{col.get("zh","")} · {col.get("en","")}',
+                    col.get("type", "-"),
+                    I18N.t("required") if col.get("required") else I18N.t("optional")))
+            self.tv_schema.configure(height=min(max(len(shape["columns"]), 2), 6))
+            self.tv_schema.grid()
+        else:
+            self.tv_schema.grid_remove()
+        # 示例前 3 行(有示例文件才显示)——"你的文件应长这样"
+        hdr, rows = self._read_rows(ex, 3)
+        if hdr:
+            self.lbl_prev.config(text=I18N.t("example_preview"))
+            self.tv_prev["columns"] = list(range(len(hdr)))
+            self.tv_prev.delete(*self.tv_prev.get_children())
+            for i, h in enumerate(hdr):
+                self.tv_prev.heading(i, text=h)
+                self.tv_prev.column(i, width=90, stretch=False, anchor="w")
+            for r in rows:
+                self.tv_prev.insert("", "end", values=r[:len(hdr)])
+            self.lbl_prev.grid()
+            self.tv_prev.grid()
+        else:
+            self.lbl_prev.grid_remove()
+            self.tv_prev.grid_remove()
+        self.btn_tmpl.config(text=I18N.t("download_template"), state=("normal" if ex else "disabled"))
+        self.btn_fill.config(text=I18N.t("fill_example"))
+        if _HAS_TKSHEET and shape and shape.get("columns"):   # 填示例只对有列角色的方法有意义
+            self.btn_fill.pack(side="left", padx=(8, 0))
+        else:
+            self.btn_fill.pack_forget()
+        if (shape and shape.get("columns")) or hdr:
+            self.card.pack(fill="x", pady=(6, 4), before=self.map_frame)
+        else:
+            self.card.pack_forget()
+
+    def _download_template(self):
+        ex = engine.example_path(self.sel) if self.sel else None
+        if not ex or not os.path.exists(ex):
+            return
+        dst = filedialog.asksaveasfilename(
+            defaultextension=".csv", initialfile=self.sel["id"] + "_template.csv",
+            filetypes=[("CSV", "*.csv")])
+        if dst:
+            try:
+                shutil.copyfile(ex, dst)
+            except Exception:
+                pass
+
+    def _fill_example_grid(self):
+        """把示例前几行灌进录入表格并切到表格数据源,用户直接改成自己的数据。"""
+        if not _HAS_TKSHEET or not self.sel:
+            return
+        _hdr, rows = self._read_rows(engine.example_path(self.sel), 8)
+        if not rows:
+            return
+        self.data_source.set("grid")
+        self._on_source()                        # 显示 grid_frame + 按角色建表头
+        try:
+            ncol = len(self._grid_roles)
+            data = [(r[:ncol] + [""] * (ncol - len(r))) for r in rows]
+            self.sheet.set_sheet_data(data, reset_col_positions=True)
+            self.sheet.set_all_column_widths()
+        except Exception:
+            pass
+        self._append_log("✓ " + I18N.t("grid_used"))
 
     def _swap_form(self, mid):
         if self._cur_form is not None:      # 只忘当前那个,不遍历全部 61 个
@@ -601,6 +813,7 @@ class MainWindow:
         for w in self.map_frame.winfo_children():
             w.destroy()
         self._map_vars = {}
+        self._map_labels = {}
         shape = engine.shape_of(self.sel) if self.sel else None
         if not shape or self.data_source.get() not in ("mine", "paste") or not self.user_file:
             return
@@ -610,14 +823,37 @@ class MainWindow:
         ttk.Label(self.map_frame, text=I18N.both("map_columns"), style="Section.TLabel").grid(
             row=0, column=0, columnspan=2, sticky="w", pady=(8, 3))
         opts = ["(无)"] + self._headers
-        for i, col in enumerate(shape["columns"], start=1):
+        cols = shape["columns"]
+        for i, col in enumerate(cols, start=1):
             req = "" if col.get("required") else " " + I18N.t("optional")
-            ttk.Label(self.map_frame, text=f'{col.get("zh")} · {col.get("en")}{req}',
-                      style="Muted.TLabel").grid(row=i, column=0, sticky="w", padx=(0, 10), pady=1)
+            lbl = ttk.Label(self.map_frame, text=f'{col.get("zh")} · {col.get("en")}{req}', style="Muted.TLabel")
+            lbl.grid(row=i, column=0, sticky="w", padx=(0, 10), pady=1)
+            self._map_labels[col["role"]] = lbl
             var = tk.StringVar(value=self._guess(col.get("aliases", [col["role"]]), self._headers) or "(无)")
-            ttk.Combobox(self.map_frame, textvariable=var, values=opts, state="readonly", width=22).grid(
-                row=i, column=1, sticky="w", pady=1)
+            cb = ttk.Combobox(self.map_frame, textvariable=var, values=opts, state="readonly", width=22)
+            cb.grid(row=i, column=1, sticky="w", pady=1)
+            cb.bind("<<ComboboxSelected>>", lambda e: self._map_feedback())
             self._map_vars[col["role"]] = (var, col)
+        # 汇总反馈行:必填列是否已全部对应(即时,不必等运行)
+        self.lbl_mapfb = ttk.Label(self.map_frame, style="Muted.TLabel")
+        self.lbl_mapfb.grid(row=len(cols) + 1, column=0, columnspan=2, sticky="w", pady=(4, 0))
+        self._map_feedback()
+
+    def _map_feedback(self):
+        miss = self._missing_required()
+        for role, (var, col) in self._map_vars.items():   # 必填未映射的列标红
+            lbl = self._map_labels.get(role)
+            if lbl is None:
+                continue
+            empty = (not var.get() or var.get() == "(无)")
+            lbl.configure(foreground=(theme.SIG if (col.get("required") and empty) else theme.MUTED))
+        if not hasattr(self, "lbl_mapfb") or not self.lbl_mapfb.winfo_exists():
+            return
+        if miss:
+            self.lbl_mapfb.configure(foreground=theme.SIG,
+                                     text="! " + I18N.t("map_missing_n", n=len(miss)) + ": " + "、".join(miss))
+        else:
+            self.lbl_mapfb.configure(foreground=theme.OK, text="✓ " + I18N.t("map_ok"))
 
     def _collect_map(self):
         cm = {}
@@ -675,6 +911,10 @@ class MainWindow:
         self.lbl_mem.config(
             text=f'{I18N.t("memory")}: {dims} · ' + I18N.t("peak_mem", gb=r["peak_gb"], avail=r["avail_gb"]),
             foreground=theme.LIGHT.get(r["level"], theme.OK))
+        try:
+            self.lbl_ctx.config(text=dims)      # 状态栏右侧显示数据维度
+        except Exception:
+            pass
 
     def _update_run_button(self):
         if not self.sel:
@@ -702,7 +942,7 @@ class MainWindow:
                 miss = self._missing_required()
                 if miss:
                     self._append_log("! " + I18N.t("map_missing") + ": " + "、".join(miss))
-                    self.nb.select(0)
+                    self._toggle_log(True)
                     return
                 col_map = self._collect_map()
         if not self._data_ok(col_map):               # 数值级校验:有问题弹窗,用户可选仍继续
@@ -711,7 +951,10 @@ class MainWindow:
         self.run = r
         self._set_log("")
         self.results.clear()
-        self.nb.select(0)
+        self._set_dot(theme.WARN)
+        self._set_status(I18N.t("running"))
+        self.pbar.pack(side="left", padx=8)
+        self.pbar.start(12)
         self.btn_run.config(state="disabled")
         self.btn_cancel.pack(side="left", padx=8)
         r.start()
@@ -736,7 +979,7 @@ class MainWindow:
             "Bio Wingman",
             I18N.t("validate_head") + "\n\n" + "\n".join(issues[:12]) + "\n\n" + I18N.t("validate_ask"))
         if not go:
-            self.nb.select(0)
+            self._toggle_log(True)
         return go
 
     def _poll(self, run):
@@ -755,15 +998,21 @@ class MainWindow:
     def _on_done(self, rc):
         r = self.run
         self.btn_cancel.pack_forget()
+        self.pbar.stop()
+        self.pbar.pack_forget()
         self._update_run_button()
         imgs = [o for o in r.outputs if o.lower().endswith(".png")]
         tbls = [o for o in r.outputs if o.lower().endswith(".csv")]
         if rc == 0:
-            self.results.show(r.outputs, r.outdir, r.m, r.params)
-            self.nb.select(1)
+            self.results.show(r.outputs, r.outdir, r.m, r.params)   # 结果为主区,直接呈现
+            self._set_dot(theme.OK)
+            self._set_status(I18N.t("done_ok", rc=rc, nimg=len(imgs), ntbl=len(tbls)))
             self._append_log("\n" + I18N.t("done_ok", rc=rc, nimg=len(imgs), ntbl=len(tbls)))
         else:
+            self._set_dot(theme.SIG)
+            self._set_status(I18N.t("done_fail", rc=rc))
             self._append_log("\n" + I18N.t("done_fail", rc=rc))
+            self._toggle_log(True)                 # 失败自动展开日志,保证报错可见
 
     def _cancel(self):
         if self.run:
@@ -798,3 +1047,8 @@ class MainWindow:
         self.log.insert("end", line + "\n")
         self.log.see("end")
         self.log.config(state="disabled")
+        try:                                   # 抽屉收起时也能看到最新一行摘要
+            if line.strip():
+                self.lbl_logtail.config(text=line.strip()[:80])
+        except Exception:
+            pass

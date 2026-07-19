@@ -14,7 +14,9 @@ class ParamForm(ttk.Frame):
         for key, spec in props.items():
             title = spec.get("title", key)
             default = spec.get("default")
-            ttk.Label(self, text=title).grid(row=row, column=0, sticky="w", padx=(0, 12), pady=5)
+            # 标签用 Body 字阶 + 右对齐,label 列定宽 → 控件左缘对齐,整段规整不扁平
+            ttk.Label(self, text=title, style="Body.TLabel").grid(
+                row=row, column=0, sticky="e", padx=(0, 12), pady=5)
             typ = spec.get("type")
             if "enum" in spec:
                 init = str(default) if default is not None else str(spec["enum"][0])
@@ -30,6 +32,12 @@ class ParamForm(ttk.Frame):
             w.grid(row=row, column=1, sticky="w", pady=5)
             self.vars[key] = (var, typ)
             row += 1
+            help_txt = spec.get("help")            # 可选:控件下方灰色说明(manifest 有 help 才出)
+            if help_txt:
+                ttk.Label(self, text=help_txt, style="Muted.TLabel", wraplength=360,
+                          justify="left").grid(row=row, column=1, sticky="w", pady=(0, 4))
+                row += 1
+        self.columnconfigure(0, minsize=120)
         self.columnconfigure(1, weight=1)
 
     def values(self) -> dict:

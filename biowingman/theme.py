@@ -23,16 +23,33 @@ LIGHT = {"green": OK, "yellow": WARN, "red": SIG}
 
 
 def apply(style):
-    """在选定 ttk 主题后调:覆盖行高/字号/间距,让 RevMan 式紧凑生效。"""
-    style.configure("Treeview", font=(FONT, 9), rowheight=22, indent=14,
+    """在选定 ttk 主题后调:覆盖行高/字号/间距,让紧凑而有层次的观感生效。
+    四级字阶(Method 13 / Section 9粗灰 / Body 9正文 / Muted 9灰) + 启用 SURFACE 分区带 +
+    配 Treeview.Heading / Notebook.Tab / Separator,消除"满屏纯白 9pt 灰字"的单调感。"""
+    style.configure("Treeview", font=(FONT, 9), rowheight=24, indent=14,
                     borderwidth=0, background=CANVAS, fieldbackground=CANVAS)
     style.map("Treeview", background=[("selected", ACCENT_SOFT)], foreground=[("selected", TEXT)])
     style.configure("Group.Treeview", font=(FONT, 9, "bold"))
+    # 表头(结果表 / 输入格式卡):浅灰底拉层次(vista 可控)
+    style.configure("Treeview.Heading", font=(FONT, 9, "bold"), foreground=TEXT,
+                    background=SURFACE, relief="flat")
+    style.map("Treeview.Heading", background=[("active", ACCENT_SOFT)])
 
-    style.configure("Method.TLabel", font=(FONT, 12, "bold"), foreground=TEXT)
-    style.configure("Muted.TLabel", font=(FONT, 9), foreground=MUTED)
+    # 四级文字层级(新增 Body 中间层级,填补 13→9 的断层)
+    style.configure("Method.TLabel", font=(FONT, 13, "bold"), foreground=TEXT)
     style.configure("Section.TLabel", font=(FONT, 9, "bold"), foreground=MUTED)
+    style.configure("Body.TLabel", font=(FONT, 9), foreground=TEXT)
+    style.configure("Muted.TLabel", font=(FONT, 9), foreground=MUTED)
     style.configure("Mono.TLabel", font=(MONO, 9), foreground=TEXT)
+
+    # Notebook 活动页加粗(结果区内部 Notebook 同惠);分隔线用 BORDER
+    style.configure("TNotebook", background=CANVAS, borderwidth=0)
+    style.configure("TNotebook.Tab", font=(FONT, 9), padding=(10, 4))
+    style.map("TNotebook.Tab", font=[("selected", (FONT, 9, "bold"))])
+    style.configure("TSeparator", background=BORDER)
+
     style.configure("TButton", font=(FONT, 10), padding=(12, 4))
     style.configure("Accent.TButton", font=(FONT, 10, "bold"), padding=(14, 5))
     style.configure("Toolbutton", font=(FONT, 9), padding=(8, 3))
+    style.configure("Card.TLabelframe", background=CANVAS, borderwidth=1, relief="solid")
+    style.configure("Card.TLabelframe.Label", font=(FONT, 9, "bold"), foreground=MUTED, background=CANVAS)
