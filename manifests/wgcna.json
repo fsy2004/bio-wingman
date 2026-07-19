@@ -1,0 +1,85 @@
+{
+  "id": "wgcna",
+  "title": "WGCNA 共表达网络",
+  "title_en": "WGCNA co-expression",
+  "category": "bio",
+  "family": "共表达网络",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T2",
+  "entry": "toolkit/modules/11_wgcna/054_wgcna_coexpression/054_WGCNA_coexpression.R",
+  "workdir": "toolkit/modules/11_wgcna/054_wgcna_coexpression",
+  "description": "加权基因共表达网络分析(WGCNA):自动选软阈值、聚类成模块、计算模块-性状相关性,输出软阈值图、模块树状图、模块-性状热图与基因-模块归属表。次输入(性状表)当前使用内置示例。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "表达矩阵 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "mem_axis": "n_rows",
+      "example": "example_data/expr_matrix.csv",
+      "spec": "首列基因名,其余为样本列。建议先按方差筛到 5000–10000 高变基因(WGCNA 内存随基因数平方增长)。"
+    },
+    {
+      "name": "traits",
+      "flag": "--traits",
+      "label": "性状表 CSV(次输入)",
+      "format": "csv",
+      "required": false,
+      "primary": false,
+      "example": "example_data/traits.csv",
+      "spec": "首列 Sample,其余为数值型性状列。当前版本此项固定用内置示例。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "power": {
+        "type": "integer",
+        "title": "软阈值 power(0=自动)",
+        "default": 0
+      },
+      "minmodule": {
+        "type": "integer",
+        "title": "最小模块基因数",
+        "default": 30
+      },
+      "mergecut": {
+        "type": "number",
+        "title": "模块合并高度",
+        "default": 0.25
+      }
+    }
+  },
+  "param_flags": {
+    "power": "--power",
+    "minmodule": "--minmodule",
+    "mergecut": "--mergecut"
+  },
+  "cite_pkgs": [
+    "WGCNA"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "wgcna_quadratic",
+    "killer_dim": "基因数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "★WGCNA 构建基因×基因邻接/TOM 矩阵,内存随基因数平方增长。上万基因可能触发黄/红灯,建议先筛高变基因。"
+  },
+  "stage": "S5",
+  "item_order": 10
+}

@@ -1,0 +1,88 @@
+{
+  "id": "deg_limma",
+  "title": "差异表达分析(limma)",
+  "title_en": "Differential expression (limma)",
+  "category": "bio",
+  "family": "转录组差异",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/03_transcriptomics_deg/010_geo_deg_volcano_heatmap_pca/010_GEO_DEG_volcano_heatmap_PCA.R",
+  "workdir": "toolkit/modules/03_transcriptomics_deg/010_geo_deg_volcano_heatmap_pca",
+  "description": "对 GEO/bulk 表达矩阵做 limma 差异表达分析,输出火山图、样本 PCA、Top 差异基因热图与差异结果表。按样本名后缀(默认 _con / _tre)自动分组。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "表达矩阵 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "mem_axis": "n_rows",
+      "example": "example_data/expr_matrix.csv",
+      "spec": "宽表:首列为基因名,其余每列一个样本;样本列名以分组后缀结尾(对照 _con,处理 _tre;可用参数改)。值为归一化后表达量(log2 或线性均可)。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "logfc": {
+        "type": "number",
+        "title": "|log2FC| 阈值",
+        "default": 0.5
+      },
+      "padj": {
+        "type": "number",
+        "title": "调整 P 阈值",
+        "default": 0.05
+      },
+      "topn": {
+        "type": "integer",
+        "title": "热图 Top 基因数",
+        "default": 20
+      },
+      "ctrl": {
+        "type": "string",
+        "title": "对照组样本名后缀",
+        "default": "_con"
+      },
+      "case": {
+        "type": "string",
+        "title": "处理组样本名后缀",
+        "default": "_tre"
+      }
+    }
+  },
+  "param_flags": {
+    "logfc": "--logfc",
+    "padj": "--padj",
+    "topn": "--topn",
+    "ctrl": "--ctrl",
+    "case": "--case"
+  },
+  "cite_pkgs": [
+    "limma",
+    "ComplexHeatmap"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "bulk_dense",
+    "killer_dim": "基因数 × 样本数",
+    "matrix_copies": 4,
+    "calibrated": false,
+    "note": "limma 在内存中保留若干份基因×样本矩阵;常规几万基因×几十样本占用很小,基本绿灯。"
+  },
+  "stage": "S3",
+  "item_order": 10
+}

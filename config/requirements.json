@@ -1,0 +1,35 @@
+{
+  "note": "版本门槛与依赖清单的单一权威来源:env_check.py 与安装脚本都从这里读。r_bioc_packages 走 BiocManager,其余 r_packages 走 CRAN。python_import_names 给 pip 发行名→import 名映射。",
+  "python_min": "3.9",
+  "r_min": "4.0",
+  "python_packages": [
+    "psutil",
+    "Pillow",
+    "python-docx",
+    "tksheet"
+  ],
+  "python_import_names": {
+    "Pillow": "PIL",
+    "python-docx": "docx"
+  },
+  "r_packages": [
+    "ggplot2",
+    "ggrepel",
+    "circlize",
+    "dplyr",
+    "reshape2",
+    "glmnet",
+    "pROC",
+    "rms",
+    "rmda",
+    "ggpubr",
+    "WGCNA",
+    "BiocManager"
+  ],
+  "r_bioc_packages": [
+    "limma",
+    "ComplexHeatmap",
+    "clusterProfiler",
+    "org.Hs.eg.db"
+  ]
+}

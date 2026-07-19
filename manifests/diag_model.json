@@ -1,0 +1,87 @@
+{
+  "id": "diag_model",
+  "title": "诊断模型(ROC / 校准 / DCA)",
+  "title_en": "Diagnostic model (ROC / calibration / DCA)",
+  "category": "bio",
+  "family": "诊断建模",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/05_diagnostic_models/016_diagnostic_model_roc_calibration_dca/016_diagnostic_model.R",
+  "workdir": "toolkit/modules/05_diagnostic_models/016_diagnostic_model_roc_calibration_dca",
+  "description": "基于诊断基因构建逻辑回归诊断模型,输出各基因及联合模型的 ROC 曲线、列线图、校准曲线、决策曲线(DCA)与 AUC/OR 结果表。次输入(诊断基因列表)当前使用内置示例。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "表达矩阵 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "mem_axis": "n_rows",
+      "example": "example_data/Sample_Type_Matrix.csv",
+      "spec": "首列基因名,其余为样本列(列名以分组后缀 _con / _dis 结尾)。"
+    },
+    {
+      "name": "genes",
+      "flag": "--genes",
+      "label": "诊断基因列表 CSV(次输入)",
+      "format": "csv",
+      "required": false,
+      "primary": false,
+      "example": "example_data/diagnostic_genes.csv",
+      "spec": "首列基因名的单列表。当前版本此项固定用内置示例。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "ctrl": {
+        "type": "string",
+        "title": "对照组样本名后缀",
+        "default": "_con"
+      },
+      "case": {
+        "type": "string",
+        "title": "疾病组样本名后缀",
+        "default": "_dis"
+      },
+      "seed": {
+        "type": "integer",
+        "title": "随机种子",
+        "default": 123
+      }
+    }
+  },
+  "param_flags": {
+    "ctrl": "--ctrl",
+    "case": "--case",
+    "seed": "--seed"
+  },
+  "cite_pkgs": [
+    "pROC",
+    "rms",
+    "rmda"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "bulk_dense",
+    "killer_dim": "基因数 × 样本数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "诊断建模用少量基因,内存开销小。"
+  },
+  "stage": "S7",
+  "item_order": 20
+}

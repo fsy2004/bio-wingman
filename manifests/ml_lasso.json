@@ -1,0 +1,89 @@
+{
+  "id": "ml_lasso",
+  "title": "LASSO 特征筛选",
+  "title_en": "LASSO feature selection",
+  "category": "bio",
+  "family": "机器学习特征",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/04_ml_feature_selection/012_lasso_feature_selection/012_LASSO_feature_selection.R",
+  "workdir": "toolkit/modules/04_ml_feature_selection/012_lasso_feature_selection",
+  "description": "用 glmnet LASSO 逻辑回归从候选基因中筛选与分组相关的特征基因,输出交叉验证曲线、系数路径图与入选基因表。次输入(候选基因列表)当前使用内置示例。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "表达矩阵 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "mem_axis": "n_rows",
+      "example": "example_data/Sample_Type_Matrix.csv",
+      "spec": "首列基因名,其余为样本列(列名以分组后缀 _con / _tre 结尾)。"
+    },
+    {
+      "name": "genes",
+      "flag": "--genes",
+      "label": "候选基因列表 CSV(次输入)",
+      "format": "csv",
+      "required": false,
+      "primary": false,
+      "example": "example_data/candidate_genes.csv",
+      "spec": "首列基因名的单列表;省略则用全部基因。当前版本此项固定用内置示例。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "lambda": {
+        "type": "string",
+        "title": "λ 选择",
+        "default": "min",
+        "enum": [
+          "min",
+          "1se"
+        ]
+      },
+      "nfolds": {
+        "type": "integer",
+        "title": "交叉验证折数",
+        "default": 10
+      },
+      "seed": {
+        "type": "integer",
+        "title": "随机种子",
+        "default": 123456
+      }
+    }
+  },
+  "param_flags": {
+    "lambda": "--lambda",
+    "nfolds": "--nfolds",
+    "seed": "--seed"
+  },
+  "cite_pkgs": [
+    "glmnet"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "bulk_dense",
+    "killer_dim": "基因数 × 样本数",
+    "matrix_copies": 4,
+    "calibrated": false,
+    "note": "glmnet 在内存中保留特征矩阵;常规规模占用很小。"
+  },
+  "stage": "S7",
+  "item_order": 10
+}

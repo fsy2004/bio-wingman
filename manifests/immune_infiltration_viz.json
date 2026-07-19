@@ -1,0 +1,70 @@
+{
+  "id": "immune_infiltration_viz",
+  "title": "免疫浸润可视化",
+  "title_en": "Immune infiltration figures",
+  "category": "bio",
+  "family": "免疫浸润",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/06_immune_infiltration/021_immune_infiltration_viz/021_immune_visualization.R",
+  "workdir": "toolkit/modules/06_immune_infiltration/021_immune_infiltration_viz",
+  "description": "由 CIBERSORT(或同类)细胞比例表出发,绘制免疫细胞组成堆叠图、组间差异箱线图与细胞间相关性热图,并输出相关性结果表。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "免疫细胞比例 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "mem_axis": "n_rows",
+      "example": "example_data/CIBERSORT_results.csv",
+      "spec": "首列 Sample(样本名,以分组后缀 _con / _tre 结尾),其余各列为免疫细胞类型的比例(每行和≈1)。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "ctrl": {
+        "type": "string",
+        "title": "对照组样本名后缀",
+        "default": "_con"
+      },
+      "case": {
+        "type": "string",
+        "title": "处理组样本名后缀",
+        "default": "_tre"
+      }
+    }
+  },
+  "param_flags": {
+    "ctrl": "--ctrl",
+    "case": "--case"
+  },
+  "cite_pkgs": [
+    "ggpubr",
+    "ComplexHeatmap"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "linear",
+    "killer_dim": "样本数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "输入为样本×细胞比例小表,内存开销极小,恒绿灯。"
+  },
+  "stage": "S5",
+  "item_order": 20
+}

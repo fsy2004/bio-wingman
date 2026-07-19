@@ -1,0 +1,93 @@
+{
+  "id": "enrich_go_kegg",
+  "title": "GO / KEGG 功能富集",
+  "title_en": "GO / KEGG enrichment",
+  "category": "bio",
+  "family": "功能富集",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/02_enrichment/007_go_kegg_enrichment/007_GO_KEGG_enrichment.R",
+  "workdir": "toolkit/modules/02_enrichment/007_go_kegg_enrichment",
+  "description": "对一份基因列表做 GO(BP/CC/MF)与 KEGG 通路过表达富集(clusterProfiler),输出 GO 点图、KEGG 棒棒糖图、基因-通路网络图及富集结果表。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "基因列表 CSV",
+      "format": "csv",
+      "required": true,
+      "primary": true,
+      "mem_axis": "n_rows",
+      "example": "example_data/gene_list.csv",
+      "spec": "单列 CSV,列名 Gene,每行一个人类基因 Symbol(或 ENTREZ,见 keytype 参数)。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "top": {
+        "type": "integer",
+        "title": "每类展示条数",
+        "default": 10
+      },
+      "pvalue": {
+        "type": "number",
+        "title": "P 值阈值",
+        "default": 0.05
+      },
+      "padjust": {
+        "type": "number",
+        "title": "调整 P 阈值",
+        "default": 0.05
+      },
+      "organism": {
+        "type": "string",
+        "title": "KEGG 物种代码",
+        "default": "hsa"
+      },
+      "keytype": {
+        "type": "string",
+        "title": "基因 ID 类型",
+        "default": "SYMBOL",
+        "enum": [
+          "SYMBOL",
+          "ENTREZID",
+          "ENSEMBL"
+        ]
+      }
+    }
+  },
+  "param_flags": {
+    "top": "--top",
+    "pvalue": "--pvalue",
+    "padjust": "--padjust",
+    "organism": "--organism",
+    "keytype": "--keytype"
+  },
+  "cite_pkgs": [
+    "clusterProfiler",
+    "org.Hs.eg.db"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "linear",
+    "killer_dim": "基因数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "输入为基因列表(通常几百到几千行),富集计算内存开销小,基本绿灯;首次运行需联网/本地注释库(org.Hs.eg.db)。"
+  },
+  "stage": "S4",
+  "item_order": 10
+}
