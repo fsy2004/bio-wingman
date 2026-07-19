@@ -1,0 +1,69 @@
+{
+  "id": "ml_combo_intersection",
+  "title": "多方法组合交集特征筛选",
+  "title_en": "Method-combo intersection",
+  "category": "bio",
+  "family": "机器学习特征",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/04_ml_feature_selection/035_ml_combination_intersection/035_method_combo_intersection.R",
+  "workdir": "toolkit/modules/04_ml_feature_selection/035_ml_combination_intersection",
+  "description": "枚举多方法的组合交集,输出各组合的共识特征与 UpSet 图。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "输入文件夹",
+      "format": "dir",
+      "required": true,
+      "primary": true,
+      "mem_axis": "n_rows",
+      "example": "example_data/method_sets",
+      "spec": "★输入是一个文件夹,内含多个方法的特征列表 CSV(文件名/列名=方法)。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "pick": {
+        "type": "integer",
+        "title": "参与组合的方法数",
+        "default": 5
+      },
+      "methods": {
+        "type": "string",
+        "title": "指定方法(逗号分隔,留空=自动)",
+        "default": ""
+      }
+    }
+  },
+  "param_flags": {
+    "pick": "--pick",
+    "methods": "--methods"
+  },
+  "cite_pkgs": [
+    "UpSetR"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "linear",
+    "killer_dim": "特征/样本数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "枚举多方法的组合交集,输出各组合的共识特征与 UpSet 图。"
+  },
+  "stage": "S7",
+  "item_order": 55
+}

@@ -527,6 +527,8 @@ class MainWindow:
         pin = engine.primary_input(m)
         spec = (pin or {}).get("spec", "")
         self.lbl_cols.config(text=(I18N.t("columns_needed") + ": " + spec) if spec else "")
+        is_dir = bool(pin and pin.get("format") == "dir")   # 目录输入方法:按钮改「选择文件夹」
+        self.btn_file.config(text=I18N.t("choose_dir") if is_dir else I18N.t("choose_file"))
 
     # ---------- 输入格式卡(选方法即出:所需列 + 示例前几行 + 下载模板/填示例)----------
     def _build_input_card(self, parent):
@@ -758,8 +760,12 @@ class MainWindow:
         self._update_run_button()
 
     def _choose_file(self):
-        path = filedialog.askopenfilename(
-            title="CSV", filetypes=[("CSV", "*.csv"), ("Text", "*.txt *.tsv"), ("All", "*.*")])
+        pin = engine.primary_input(self.sel) if self.sel else None
+        if pin and pin.get("format") == "dir":          # 目录输入方法:选文件夹而非单文件
+            path = filedialog.askdirectory(title=I18N.t("choose_dir"))
+        else:
+            path = filedialog.askopenfilename(
+                title="CSV", filetypes=[("CSV", "*.csv"), ("Text", "*.txt *.tsv"), ("All", "*.*")])
         if path:
             self.user_file = os.path.normpath(path)
             self.data_source.set("mine")

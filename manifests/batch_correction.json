@@ -1,0 +1,55 @@
+{
+  "id": "batch_correction",
+  "title": "多队列合并 + 批次校正",
+  "title_en": "Multi-cohort merge & batch correction",
+  "category": "bio",
+  "family": "标准化",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/03_transcriptomics_deg/056_geo_multicohort_batch_correction/056_GEO_merge_batch_correction.R",
+  "workdir": "toolkit/modules/03_transcriptomics_deg/056_geo_multicohort_batch_correction",
+  "description": "多队列表达矩阵合并 + limma removeBatchEffect 去批次;输出校正前后 PCA + 箱线图 + 合并矩阵。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "输入文件夹",
+      "format": "dir",
+      "required": true,
+      "primary": true,
+      "mem_axis": "n_rows",
+      "example": "example_data",
+      "spec": "★输入是一个文件夹,内含 ≥2 个 CSV(每个=一个队列的表达矩阵,首列基因名统一为 geneSymbol);文件名=批次名。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {}
+  },
+  "param_flags": {},
+  "cite_pkgs": [
+    "limma"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "linear",
+    "killer_dim": "特征/样本数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "多队列表达矩阵合并 + limma removeBatchEffect 去批次;输出校正前后 PCA + 箱线图 + 合并矩阵。"
+  },
+  "stage": "S2",
+  "item_order": 20
+}

@@ -1,0 +1,55 @@
+{
+  "id": "ml_feature_intersection",
+  "title": "多方法特征交集(Venn/UpSet)",
+  "title_en": "Feature intersection (Venn/UpSet)",
+  "category": "bio",
+  "family": "机器学习特征",
+  "language": "R",
+  "library": "bioinfo-reusable-code",
+  "interp": "Rscript",
+  "status": "turnkey",
+  "tier": "T1",
+  "entry": "toolkit/modules/04_ml_feature_selection/015_ml_feature_intersection_venn_upset/015_feature_intersection.R",
+  "workdir": "toolkit/modules/04_ml_feature_selection/015_ml_feature_intersection_venn_upset",
+  "description": "对多个特征选择方法的基因列表取交集,输出 Venn 图 + UpSet 图 + 交集基因表(找稳健共识特征)。",
+  "inputs": [
+    {
+      "name": "input",
+      "flag": "--input",
+      "label": "输入文件夹",
+      "format": "dir",
+      "required": true,
+      "primary": true,
+      "mem_axis": "n_rows",
+      "example": "example_data/gene_sets",
+      "spec": "★输入是一个文件夹,内含多个基因列表 CSV/txt(文件名=方法名,如 LASSO.csv/RandomForest.csv/SVM_RFE.csv)。"
+    }
+  ],
+  "params_schema": {
+    "type": "object",
+    "properties": {}
+  },
+  "param_flags": {},
+  "cite_pkgs": [
+    "UpSetR"
+  ],
+  "outputs": [
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
+  ],
+  "mem_hint": {
+    "model": "linear",
+    "killer_dim": "特征/样本数",
+    "matrix_copies": 3,
+    "calibrated": false,
+    "note": "对多个特征选择方法的基因列表取交集,输出 Venn 图 + UpSet 图 + 交集基因表(找稳健共识特征)。"
+  },
+  "stage": "S7",
+  "item_order": 50
+}
