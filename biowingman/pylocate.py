@@ -3,9 +3,15 @@
 优先用运行本程序的同一解释器(sys.executable),这样它装了 scanpy 等就能直接跑。结果缓存。"""
 from __future__ import annotations
 import os
+import re
 import shutil
 import sys
 from pathlib import Path
+
+
+def _ver_key(p):
+    """从路径抽数字段做版本序 key(避免字典序把 Python39 判得比 Python312 新)。"""
+    return tuple(int(x) for x in re.findall(r"\d+", str(p))) or (0,)
 
 _cache: str | None = None
 _probed = False
@@ -35,7 +41,7 @@ def _from_glob():
     for b in bases:
         d = Path(b)
         if d.is_dir():
-            cands = sorted(d.glob("**/python.exe"), reverse=True)
+            cands = sorted(d.glob("**/python.exe"), key=_ver_key, reverse=True)
             if cands:
                 return str(cands[0])
     return None

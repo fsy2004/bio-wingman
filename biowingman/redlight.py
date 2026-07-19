@@ -23,11 +23,16 @@ def estimate(manifest: dict, data_path):
         dp = doctor.data_profile(data_path)
         est = doctor.estimate_peak(manifest["mem_hint"], dp)
         rl = doctor.redlight(est["predicted_peak_bytes"])
+        # 维度未知(rds/RData/h5ad读维度失败):不能因按文件字节算出的低峰值误判绿灯 → 至少黄灯
+        level = rl.get("level", "green")
+        if est.get("dim_unknown") and level == "green":
+            level = "yellow"
         r = {
-            "level": rl.get("level", "green"),
+            "level": level,
             "peak_gb": est.get("predicted_peak_gb", 0),
             "avail_gb": rl.get("available_gb", 0),
             "n_rows": dp.get("n_rows"), "n_cols": dp.get("n_cols"),
+            "dim_unknown": est.get("dim_unknown", False),
         }
     except Exception:
         r = None

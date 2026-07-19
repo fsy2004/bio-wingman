@@ -28,17 +28,46 @@
   "params_schema": {
     "type": "object",
     "properties": {
-      "genes": {"type": "string", "title": "要展示的 marker 基因(逗号分隔,留空=自动)", "default": ""},
-      "resolution": {"type": "number", "title": "聚类分辨率", "default": 0.5},
-      "npcs": {"type": "integer", "title": "PCA 主成分数", "default": 20},
-      "minfeature": {"type": "integer", "title": "细胞最少基因数(QC)", "default": 100}
+      "genes": {
+        "type": "string",
+        "title": "要展示的 marker 基因(逗号分隔,留空=自动)",
+        "default": ""
+      },
+      "resolution": {
+        "type": "number",
+        "title": "聚类分辨率",
+        "default": 0.5
+      },
+      "npcs": {
+        "type": "integer",
+        "title": "PCA 主成分数",
+        "default": 20
+      },
+      "minfeature": {
+        "type": "integer",
+        "title": "细胞最少基因数(QC)",
+        "default": 100
+      }
     }
   },
-  "param_flags": {"genes": "--genes", "resolution": "--resolution", "npcs": "--npcs", "minfeature": "--minfeature"},
-  "cite_pkgs": ["Seurat"],
+  "param_flags": {
+    "genes": "--genes",
+    "resolution": "--resolution",
+    "npcs": "--npcs",
+    "minfeature": "--minfeature"
+  },
+  "cite_pkgs": [
+    "Seurat"
+  ],
   "outputs": [
-    {"glob": "*.png", "display": "image"},
-    {"glob": "*.csv", "display": "table"}
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
   ],
   "mem_hint": {
     "model": "scrna_dense",
@@ -48,6 +77,7 @@
     "calibrated": false,
     "note": "★单细胞:内存随细胞数×高变基因增长。上万细胞可能触发黄/红灯,建议下采样或减少 HVG。"
   },
+  "timeout_hint": 3600,
   "stage": "S5",
   "item_order": 5
 }

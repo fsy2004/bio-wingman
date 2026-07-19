@@ -88,6 +88,7 @@
     "calibrated": false,
     "note": "输入为基因列表(通常几百到几千行),富集计算内存开销小,基本绿灯;首次运行需联网/本地注释库(org.Hs.eg.db)。"
   },
+  "timeout_hint": 3600,
   "stage": "S4",
   "item_order": 10
 }

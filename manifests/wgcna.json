@@ -80,6 +80,7 @@
     "calibrated": false,
     "note": "★WGCNA 构建基因×基因邻接/TOM 矩阵,内存随基因数平方增长。上万基因可能触发黄/红灯,建议先筛高变基因。"
   },
+  "timeout_hint": 3600,
   "stage": "S5",
   "item_order": 10
 }

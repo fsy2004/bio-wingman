@@ -70,6 +70,7 @@
     "calibrated": false,
     "note": "约束极大似然多变量 MR(MVMR-cML-DP)对比 IVW,在多个相关暴露间估计各自对结局的独立因果效应。"
   },
+  "timeout_hint": 3600,
   "stage": "S6",
   "item_order": 20
 }

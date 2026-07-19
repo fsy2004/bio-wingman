@@ -48,6 +48,10 @@
   "param_flags": {
     "group_col": "--group_col"
   },
+  "cite_pkgs": [
+    "ggplot2",
+    "pheatmap"
+  ],
   "outputs": [
     {
       "glob": "*.png",

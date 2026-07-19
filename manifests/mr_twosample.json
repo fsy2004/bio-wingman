@@ -30,6 +30,9 @@
     "properties": {}
   },
   "param_flags": {},
+  "cite_pkgs": [
+    "ggplot2"
+  ],
   "outputs": [
     {
       "glob": "*.png",

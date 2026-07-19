@@ -50,6 +50,7 @@
     "calibrated": false,
     "note": "多队列表达矩阵合并 + limma removeBatchEffect 去批次;输出校正前后 PCA + 箱线图 + 合并矩阵。"
   },
+  "timeout_hint": 3600,
   "stage": "S2",
   "item_order": 20
 }

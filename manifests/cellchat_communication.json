@@ -38,15 +38,38 @@
   "params_schema": {
     "type": "object",
     "properties": {
-      "celltype_col": {"type": "string", "title": "细胞类型列名", "default": "celltype"},
-      "species": {"type": "string", "title": "物种(L-R 数据库)", "default": "human", "enum": ["human", "mouse"]}
+      "celltype_col": {
+        "type": "string",
+        "title": "细胞类型列名",
+        "default": "celltype"
+      },
+      "species": {
+        "type": "string",
+        "title": "物种(L-R 数据库)",
+        "default": "human",
+        "enum": [
+          "human",
+          "mouse"
+        ]
+      }
     }
   },
-  "param_flags": {"celltype_col": "--celltype_col", "species": "--species"},
-  "cite_pkgs": ["CellChat"],
+  "param_flags": {
+    "celltype_col": "--celltype_col",
+    "species": "--species"
+  },
+  "cite_pkgs": [
+    "CellChat"
+  ],
   "outputs": [
-    {"glob": "*.png", "display": "image"},
-    {"glob": "*.csv", "display": "table"}
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
   ],
   "mem_hint": {
     "model": "scrna_dense",
@@ -56,6 +79,7 @@
     "calibrated": false,
     "note": "computeCommunProb 置换较耗时;上万细胞会明显变慢,可先下采样。"
   },
+  "timeout_hint": 3600,
   "stage": "S5",
   "item_order": 65
 }

@@ -17,7 +17,7 @@ def save(state: dict, path: str):
 
 
 def load(path: str) -> dict:
-    with open(path, encoding="utf-8") as f:
+    with open(path, encoding="utf-8-sig") as f:   # -sig: 兼容被编辑器另存带 BOM 的工程
         d = json.load(f)
     if d.get("app") != "Bio Wingman" or d.get("format") != "bwproj":
         raise ValueError("不是 Bio Wingman 项目文件 / Not a Bio Wingman project file")

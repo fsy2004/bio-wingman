@@ -20,7 +20,9 @@ _STAGE_PKGS = {
 
 
 def _pkgs_for(manifest):
-    return manifest.get("cite_pkgs") or _STAGE_PKGS.get(manifest.get("stage", ""), [])
+    # 只用 manifest 显式声明的 cite_pkgs;绝不按 stage 猜(会误称用了某包 → 虚假署名)。
+    # 缺 cite_pkgs 时返回空,报告只写「performed in R」不点名具体包(诚实)。
+    return manifest.get("cite_pkgs") or []
 
 
 def _citations(packages):

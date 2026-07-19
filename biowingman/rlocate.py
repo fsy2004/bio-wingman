@@ -3,11 +3,17 @@
 R 的 Windows 安装器默认不加 PATH,所以三级探测必不可少。结果缓存。"""
 from __future__ import annotations
 import os
+import re
 import shutil
 from pathlib import Path
 
 _cache: str | None = None
 _probed = False
+
+
+def _ver_key(p):
+    """按路径里的 R-x.y.z 数字段做版本序(避免字典序把 R-4.4.3 判得比 R-4.10.1 新)。"""
+    return tuple(int(x) for x in re.findall(r"\d+", str(p))) or (0,)
 
 
 def _from_registry():
@@ -37,7 +43,7 @@ def _from_glob():
     for b in bases:
         rdir = Path(b) / "R" if b else None
         if rdir and rdir.is_dir():
-            cands = sorted(rdir.glob("**/bin/**/Rscript.exe"), reverse=True)
+            cands = sorted(rdir.glob("**/bin/**/Rscript.exe"), key=_ver_key, reverse=True)
             if cands:
                 return str(cands[0])
     return None

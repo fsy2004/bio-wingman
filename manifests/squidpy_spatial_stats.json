@@ -28,15 +28,42 @@
   "params_schema": {
     "type": "object",
     "properties": {
-      "cluster_key": {"type": "string", "title": "细胞域/类型标签列名", "default": "domain"},
-      "n_neighs": {"type": "integer", "title": "空间 KNN 邻居数", "default": 6},
-      "n_perms": {"type": "integer", "title": "置换次数(Moran/邻域富集)", "default": 200}
+      "cluster_key": {
+        "type": "string",
+        "title": "细胞域/类型标签列名",
+        "default": "domain"
+      },
+      "n_neighs": {
+        "type": "integer",
+        "title": "空间 KNN 邻居数",
+        "default": 6
+      },
+      "n_perms": {
+        "type": "integer",
+        "title": "置换次数(Moran/邻域富集)",
+        "default": 200
+      }
     }
   },
-  "param_flags": {"cluster_key": "--cluster_key", "n_neighs": "--n_neighs", "n_perms": "--n_perms"},
+  "param_flags": {
+    "cluster_key": "--cluster_key",
+    "n_neighs": "--n_neighs",
+    "n_perms": "--n_perms"
+  },
+  "cite_pkgs": [
+    "squidpy",
+    "scanpy",
+    "anndata"
+  ],
   "outputs": [
-    {"glob": "*.png", "display": "image"},
-    {"glob": "*.csv", "display": "table"}
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
   ],
   "mem_hint": {
     "model": "scrna_dense",
@@ -46,6 +73,7 @@
     "calibrated": false,
     "note": "空间统计置换检验较耗时;spot/基因多时内存与时间上升,可减少 n_perms。"
   },
+  "timeout_hint": 3600,
   "stage": "S5",
   "item_order": 60
 }

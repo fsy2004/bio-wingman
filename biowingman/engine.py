@@ -111,7 +111,7 @@ class Run:
     kind ∈ {'log','error','done'};done 的 payload 是 returncode。结束后读 .outputs / .returncode。"""
 
     def __init__(self, m: dict, input_path: str | None = None, params: dict | None = None,
-                 timeout: int = 900, col_map: dict | None = None):
+                 timeout: int = 1800, col_map: dict | None = None):
         self.m = m
         self.input_path = input_path
         self.params = params or {}
@@ -160,6 +160,9 @@ class Run:
             env = os.environ.copy()
             env["BIOWINGMAN_TOOLKIT"] = str(TOOLKIT)
             env["PATH"] = str(Path(exe).parent) + os.pathsep + env.get("PATH", "")
+            if self._cancelled:                 # Popen 之前已被取消 → 不启动进程
+                self._finish(130)
+                return
             self.q.put(("log", "$ " + subprocess.list2cmdline(argv)))
             self.proc = subprocess.Popen(
                 argv, cwd=str(ROOT / self.m["workdir"]),
@@ -178,7 +181,8 @@ class Run:
         def watchdog():
             while self.proc and self.proc.poll() is None:
                 if not self._cancelled and time.monotonic() - start > self.timeout:
-                    self.q.put(("error", f"timed out after {self.timeout}s / 超时已终止"))
+                    self.q.put(("error", f"运行超过 {self.timeout}s 已终止 / timed out after {self.timeout}s。"
+                                        "若数据规模较大属正常,可换更小数据或联系作者调高超时上限(非软件故障)。"))
                     self.cancel()
                     return
                 time.sleep(1)

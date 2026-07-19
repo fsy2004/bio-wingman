@@ -65,6 +65,7 @@
     "calibrated": false,
     "note": "输入为样本×细胞比例小表,内存开销极小,恒绿灯。"
   },
+  "timeout_hint": 2400,
   "stage": "S5",
   "item_order": 20
 }

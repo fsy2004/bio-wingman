@@ -91,6 +91,10 @@ def estimate_peak(mem_hint: dict, primary: dict) -> dict:
     copies = mem_hint.get("matrix_copies", 3)
     detail = ""
     peak = None
+    # ★维度未知(.rds/.RData 无轻量元数据、或 h5ad 读维度失败):按维度的模型无法估内存,
+    #   不能用 `or 0` 兜底成 0 从而误判绿灯。标 dim_unknown 让 redlight 转黄并诚实提示。
+    dim_unknown = ((model in ("wgcna_quadratic", "bulk_dense") and primary.get("n_rows") is None)
+                   or (model in ("scrna_dense", "bulk_dense") and primary.get("n_cols") is None))
 
     if model == "wgcna_quadratic":
         genes = primary.get("n_rows") or 0                # 表达矩阵: 行=基因
@@ -116,7 +120,7 @@ def estimate_peak(mem_hint: dict, primary: dict) -> dict:
 
     return {"predicted_peak_bytes": int(peak), "predicted_peak_gb": round(peak / GB, 2),
             "model": model, "detail": detail, "calibrated": mem_hint.get("calibrated", False),
-            "killer_dim": mem_hint.get("killer_dim", "")}
+            "killer_dim": mem_hint.get("killer_dim", ""), "dim_unknown": dim_unknown}
 
 
 def redlight(predicted_peak_bytes: int, available_bytes: int | None = None) -> dict:

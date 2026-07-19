@@ -86,6 +86,7 @@
     "calibrated": false,
     "note": "在 WGCNA 模块基础上推断模块↔性状的方向性(module→trait 正向 vs trait→module 反向),CWGCNA 缺失时以 WGCNA+lm 近似。"
   },
+  "timeout_hint": 3600,
   "stage": "S5",
   "item_order": 30
 }

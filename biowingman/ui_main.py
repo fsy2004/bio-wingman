@@ -87,14 +87,22 @@ class MainWindow:
             "params": (form.values() if form else {}),
             "mapping": self._collect_map(),
         }
-        if self.data_source.get() in ("mine", "paste", "grid") and self.user_file and os.path.exists(self.user_file):
+        ds = self.data_source.get()
+        if ds in ("mine", "paste", "grid") and self.user_file and os.path.exists(self.user_file):
             st["data_name"] = os.path.basename(self.user_file)
-            for enc in ("utf-8-sig", "gb18030", "latin-1"):
-                try:
-                    st["data_csv"] = open(self.user_file, encoding=enc).read()
-                    break
-                except Exception:
-                    continue
+            fmt = (engine.primary_input(self.sel) or {}).get("format")
+            # 文本输入(粘贴/表格/csv)才内嵌工程便于携带;二进制(h5ad/rds/maf)或目录只存路径引用,
+            # 否则 latin-1 硬解二进制塞进 JSON → 重开损坏 + 工程体积爆炸。
+            text_ok = ds in ("paste", "grid") or fmt in (None, "csv", "tsv", "txt")
+            if text_ok and os.path.isfile(self.user_file):
+                for enc in ("utf-8-sig", "gb18030", "latin-1"):
+                    try:
+                        st["data_csv"] = open(self.user_file, encoding=enc).read()
+                        break
+                    except Exception:
+                        continue
+            else:
+                st["data_path"] = os.path.abspath(self.user_file)
         return st
 
     def apply_project_state(self, st):
@@ -118,6 +126,12 @@ class MainWindow:
                 self._on_source()                        # 触发体检 + 重建映射
             except Exception:
                 pass
+        elif ds == "mine" and st.get("data_path"):        # 二进制/目录:按路径引用还原(文件须仍在原处)
+            p = st["data_path"]
+            if os.path.exists(p):
+                self.user_file = p
+                self.data_source.set("mine")
+                self._on_source()
         for r, col in (st.get("mapping") or {}).items():  # 映射在 _rebuild_map 之后设
             if r in self._map_vars:
                 self._map_vars[r][0].set(col)
@@ -290,7 +304,9 @@ class MainWindow:
         self.lbl_method = ttk.Label(top, style="Method.TLabel", wraplength=720)
         self.lbl_method.pack(anchor="w")
         self.lbl_sub = ttk.Label(top, style="Muted.TLabel", wraplength=720)
-        self.lbl_sub.pack(anchor="w", pady=(1, 8))
+        self.lbl_sub.pack(anchor="w", pady=(1, 2))
+        self.lbl_desc = ttk.Label(top, style="Body.TLabel", wraplength=720, justify="left")   # 方法说明
+        self.lbl_desc.pack(anchor="w", pady=(0, 8))
 
         # 数据段
         self.hdr_data = ttk.Label(top, style="Section.TLabel")
@@ -458,7 +474,7 @@ class MainWindow:
         self.results.retitle()
         self._apply_r_status()
         self._reset_search_placeholder()
-        self._rebuild_tree()
+        self._rebuild_tree('' if self._search_ph else self.q_var.get().strip())   # 保持当前搜索过滤
         if self.sel:
             self._render_header()
             self._refresh_input_card()
@@ -505,6 +521,7 @@ class MainWindow:
         if self.run and not self.run.done:   # 切方法前取消在跑的旧 run,避免重叠/结果串到别的方法
             self.run.cancel()
             self.run = None
+            self._reset_run_ui()             # ★复位运行态 UI(否则进度条空转/取消键死/状态卡"运行中")
         self.sel = engine.load_manifest(mid)
         self.data_source.set("example")
         self.user_file = None
@@ -519,11 +536,26 @@ class MainWindow:
         self._schedule_redlight()
         self._update_run_button()
 
+    def _reset_run_ui(self):
+        """复位运行态 UI(切方法取消旧 run、或 run 结束时统一收尾用)。"""
+        try:
+            self.btn_cancel.pack_forget()
+        except Exception:
+            pass
+        try:
+            self.pbar.stop()
+            self.pbar.pack_forget()
+        except Exception:
+            pass
+        self._set_dot(theme.MUTED)
+        self._set_status("")
+
     def _render_header(self):
         m = self.sel
         self.lbl_method.config(text=I18N.title_of(m))
         other = m.get("title") if I18N.lang == "en" else m.get("title_en")
         self.lbl_sub.config(text=other or "")
+        self.lbl_desc.config(text=m.get("description", ""))   # 方法说明(做什么/出什么图)——上手引导
         pin = engine.primary_input(m)
         spec = (pin or {}).get("spec", "")
         self.lbl_cols.config(text=(I18N.t("columns_needed") + ": " + spec) if spec else "")
@@ -568,6 +600,10 @@ class MainWindow:
             return
         shape = engine.shape_of(self.sel)
         ex = engine.example_path(self.sel)
+        pin = engine.primary_input(self.sel)
+        is_text = (pin or {}).get("format") in (None, "csv", "tsv", "txt")   # 二进制(h5ad/rds/maf)/目录不预览
+        if _HAS_TKSHEET:                          # 录入表格只对有列角色的方法有意义,否则隐藏(避免单列死表)
+            (self.rb_grid.grid() if (shape and shape.get("columns")) else self.rb_grid.grid_remove())
         self.card.config(text=I18N.both("input_format"))
         # 列规格表(有形状才显示)
         if shape and shape.get("columns"):
@@ -583,8 +619,8 @@ class MainWindow:
             self.tv_schema.grid()
         else:
             self.tv_schema.grid_remove()
-        # 示例前 3 行(有示例文件才显示)——"你的文件应长这样"
-        hdr, rows = self._read_rows(ex, 3)
+        # 示例前 3 行(仅文本格式;二进制/目录不预览,避免 latin-1 硬解出乱码)——"你的文件应长这样"
+        hdr, rows = (self._read_rows(ex, 3) if is_text else ([], []))
         if hdr:
             self.lbl_prev.config(text=I18N.t("example_preview"))
             self.tv_prev["columns"] = list(range(len(hdr)))
@@ -597,6 +633,7 @@ class MainWindow:
             self.lbl_prev.grid()
             self.tv_prev.grid()
         else:
+            self.tv_prev.delete(*self.tv_prev.get_children())   # 清旧行,避免切到二进制方法时残留上个方法的预览
             self.lbl_prev.grid_remove()
             self.tv_prev.grid_remove()
         self.btn_tmpl.config(text=I18N.t("download_template"), state=("normal" if ex else "disabled"))
@@ -605,7 +642,7 @@ class MainWindow:
             self.btn_fill.pack(side="left", padx=(8, 0))
         else:
             self.btn_fill.pack_forget()
-        if (shape and shape.get("columns")) or hdr:
+        if (shape and shape.get("columns")) or hdr or ex:   # 二进制方法也显卡片(只留"下载示例"按钮)
             self.card.pack(fill="x", pady=(6, 4), before=self.map_frame)
         else:
             self.card.pack_forget()
@@ -614,9 +651,11 @@ class MainWindow:
         ex = engine.example_path(self.sel) if self.sel else None
         if not ex or not os.path.exists(ex):
             return
+        base = os.path.basename(ex)                       # 保留真实文件名/扩展(.maf.gz/.h5ad/.rds/.csv)
+        ext = os.path.splitext(base)[1] or ".csv"         # 二进制示例不会被存成损坏的 .csv
         dst = filedialog.asksaveasfilename(
-            defaultextension=".csv", initialfile=self.sel["id"] + "_template.csv",
-            filetypes=[("CSV", "*.csv")])
+            defaultextension=ext, initialfile=self.sel["id"] + "_example" + ext,
+            filetypes=[("All files", "*.*")])
         if dst:
             try:
                 shutil.copyfile(ex, dst)
@@ -732,9 +771,9 @@ class MainWindow:
                 float(x); return True
             except ValueError:
                 return False
-        first_numeric = any(is_num(c) for c in rows[0])
+        all_numeric = bool(rows[0]) and all(is_num(c) for c in rows[0])   # 全数值才判"无表头";含"gene"等非数字则首行是表头
         shape = engine.shape_of(self.sel) if self.sel else None
-        if first_numeric:
+        if all_numeric:
             n = len(rows[0])
             if shape and len(shape["columns"]) >= n:
                 header = [shape["columns"][i]["role"] for i in range(n)]
@@ -913,9 +952,10 @@ class MainWindow:
         if not r:
             self.lbl_mem.config(text="")
             return
-        dims = f'{r.get("n_rows", "?")}×{r.get("n_cols", "?")}'
+        dims = f'{r.get("n_rows") or "?"}×{r.get("n_cols") or "?"}'   # 目录/无元数据格式 → 值为 None,回退 "?"
+        note = "(维度未知,仅按文件大小粗估)" if r.get("dim_unknown") else ""
         self.lbl_mem.config(
-            text=f'{I18N.t("memory")}: {dims} · ' + I18N.t("peak_mem", gb=r["peak_gb"], avail=r["avail_gb"]),
+            text=f'{I18N.t("memory")}: {dims} · ' + I18N.t("peak_mem", gb=r["peak_gb"], avail=r["avail_gb"]) + note,
             foreground=theme.LIGHT.get(r["level"], theme.OK))
         try:
             self.lbl_ctx.config(text=dims)      # 状态栏右侧显示数据维度
@@ -953,7 +993,8 @@ class MainWindow:
                 col_map = self._collect_map()
         if not self._data_ok(col_map):               # 数值级校验:有问题弹窗,用户可选仍继续
             return
-        r = engine.Run(self.sel, input_path=input_path, params=params, col_map=col_map)
+        timeout = int(self.sel.get("timeout_hint", 1800))   # 重方法在 manifest 声明更大超时,避免真实大数据被强杀
+        r = engine.Run(self.sel, input_path=input_path, params=params, col_map=col_map, timeout=timeout)
         self.run = r
         self._set_log("")
         self.results.clear()
@@ -1003,9 +1044,7 @@ class MainWindow:
 
     def _on_done(self, rc):
         r = self.run
-        self.btn_cancel.pack_forget()
-        self.pbar.stop()
-        self.pbar.pack_forget()
+        self._reset_run_ui()          # 停进度条/收取消键/清状态点(随后按 rc 覆盖 dot/status)
         self._update_run_button()
         imgs = [o for o in r.outputs if o.lower().endswith(".png")]
         tbls = [o for o in r.outputs if o.lower().endswith(".csv")]

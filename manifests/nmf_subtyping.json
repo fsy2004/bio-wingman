@@ -28,17 +28,48 @@
   "params_schema": {
     "type": "object",
     "properties": {
-      "kmin": {"type": "integer", "title": "最小亚型数(秩)", "default": 2},
-      "kmax": {"type": "integer", "title": "最大亚型数(秩)", "default": 6},
-      "nrun": {"type": "integer", "title": "每个秩的 NMF 重复次数", "default": 10},
-      "k": {"type": "integer", "title": "手动指定亚型数(0=自动选)", "default": 0}
+      "kmin": {
+        "type": "integer",
+        "title": "最小亚型数(秩)",
+        "default": 2
+      },
+      "kmax": {
+        "type": "integer",
+        "title": "最大亚型数(秩)",
+        "default": 6
+      },
+      "nrun": {
+        "type": "integer",
+        "title": "每个秩的 NMF 重复次数",
+        "default": 10
+      },
+      "k": {
+        "type": "integer",
+        "title": "手动指定亚型数(0=自动选)",
+        "default": 0
+      }
     }
   },
-  "param_flags": {"kmin": "--kmin", "kmax": "--kmax", "nrun": "--nrun", "k": "--k"},
-  "cite_pkgs": ["NMF", "ConsensusClusterPlus", "ComplexHeatmap"],
+  "param_flags": {
+    "kmin": "--kmin",
+    "kmax": "--kmax",
+    "nrun": "--nrun",
+    "k": "--k"
+  },
+  "cite_pkgs": [
+    "NMF",
+    "ConsensusClusterPlus",
+    "ComplexHeatmap"
+  ],
   "outputs": [
-    {"glob": "*.png", "display": "image"},
-    {"glob": "*.csv", "display": "table"}
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
   ],
   "mem_hint": {
     "model": "bulk_dense",
@@ -47,6 +78,7 @@
     "calibrated": false,
     "note": "NMF 多秩×多次重复,特征数大时较慢;内存随特征×样本增长。"
   },
+  "timeout_hint": 3600,
   "stage": "S5",
   "item_order": 50
 }

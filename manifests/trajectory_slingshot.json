@@ -28,16 +28,41 @@
   "params_schema": {
     "type": "object",
     "properties": {
-      "cluster_col": {"type": "string", "title": "聚类列名", "default": "seurat_clusters"},
-      "reduction": {"type": "string", "title": "降维名", "default": "umap"},
-      "start_cluster": {"type": "string", "title": "起始簇(留空=自动)", "default": ""}
+      "cluster_col": {
+        "type": "string",
+        "title": "聚类列名",
+        "default": "seurat_clusters"
+      },
+      "reduction": {
+        "type": "string",
+        "title": "降维名",
+        "default": "umap"
+      },
+      "start_cluster": {
+        "type": "string",
+        "title": "起始簇(留空=自动)",
+        "default": ""
+      }
     }
   },
-  "param_flags": {"cluster_col": "--cluster_col", "reduction": "--reduction", "start_cluster": "--start_cluster"},
-  "cite_pkgs": ["slingshot", "tradeSeq"],
+  "param_flags": {
+    "cluster_col": "--cluster_col",
+    "reduction": "--reduction",
+    "start_cluster": "--start_cluster"
+  },
+  "cite_pkgs": [
+    "slingshot",
+    "tradeSeq"
+  ],
   "outputs": [
-    {"glob": "*.png", "display": "image"},
-    {"glob": "*.csv", "display": "table"}
+    {
+      "glob": "*.png",
+      "display": "image"
+    },
+    {
+      "glob": "*.csv",
+      "display": "table"
+    }
   ],
   "mem_hint": {
     "model": "scrna_dense",
@@ -47,6 +72,7 @@
     "calibrated": false,
     "note": "tradeSeq 拟合 GAM 较耗时;细胞/基因多时明显变慢,可先下采样。"
   },
+  "timeout_hint": 5400,
   "stage": "S5",
   "item_order": 8
 }
