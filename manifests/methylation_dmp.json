@@ -29,10 +29,10 @@
       "flag": "--metadata",
       "label": "样本分组表 CSV(次输入)",
       "format": "csv",
-      "required": false,
+      "required": true,
       "primary": false,
       "example": "example_data/metadata.csv",
-      "spec": "首列样本名(与矩阵列对应)+ 分组列(见 group_col)。当前固定用内置示例。"
+      "spec": "首列样本名(与矩阵列对应)+ 分组列(见 group_col);在方法页选择真实元数据文件。"
     }
   ],
   "params_schema": {

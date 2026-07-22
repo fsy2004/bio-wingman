@@ -6,11 +6,13 @@
     "psutil",
     "Pillow",
     "python-docx",
-    "tksheet"
+    "tksheet",
+    "sv-ttk"
   ],
   "python_import_names": {
     "Pillow": "PIL",
-    "python-docx": "docx"
+    "python-docx": "docx",
+    "sv-ttk": "sv_ttk"
   },
   "python_analysis_packages": [
     "scanpy",

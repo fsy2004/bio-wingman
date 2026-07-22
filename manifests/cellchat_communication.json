@@ -29,10 +29,10 @@
       "flag": "--meta",
       "label": "细胞类型注释 CSV(次输入)",
       "format": "csv",
-      "required": false,
+      "required": true,
       "primary": false,
       "example": "example_data/meta.csv",
-      "spec": "两列:细胞名(与 counts 列对应)、细胞类型(见 celltype_col)。当前固定用内置示例。"
+      "spec": "两列:细胞名(与 counts 列对应)、细胞类型(见 celltype_col);在方法页选择真实元数据文件。"
     }
   ],
   "params_schema": {

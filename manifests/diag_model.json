@@ -11,7 +11,7 @@
   "tier": "T1",
   "entry": "toolkit/modules/05_diagnostic_models/016_diagnostic_model_roc_calibration_dca/016_diagnostic_model.R",
   "workdir": "toolkit/modules/05_diagnostic_models/016_diagnostic_model_roc_calibration_dca",
-  "description": "基于诊断基因构建逻辑回归诊断模型,输出各基因及联合模型的 ROC 曲线、列线图、校准曲线、决策曲线(DCA)与 AUC/OR 结果表。次输入(诊断基因列表)当前使用内置示例。",
+  "description": "基于诊断基因构建逻辑回归诊断模型,输出各基因及联合模型的 ROC 曲线、列线图、校准曲线、决策曲线(DCA)与 AUC/OR 结果表。诊断基因列表可自动接入上游结果或在方法页选择。",
   "inputs": [
     {
       "name": "input",
@@ -22,6 +22,7 @@
       "primary": true,
       "mem_axis": "n_rows",
       "example": "example_data/Sample_Type_Matrix.csv",
+      "auto_from": ["Sample_Type_Matrix.csv", "merged_after_correction.csv"],
       "spec": "首列基因名,其余为样本列(列名以分组后缀 _con / _dis 结尾)。"
     },
     {
@@ -29,10 +30,11 @@
       "flag": "--genes",
       "label": "诊断基因列表 CSV(次输入)",
       "format": "csv",
-      "required": false,
+      "required": true,
       "primary": false,
       "example": "example_data/diagnostic_genes.csv",
-      "spec": "首列基因名的单列表。当前版本此项固定用内置示例。"
+      "auto_from": ["DE_significant_genes.csv", "LASSO_selected_genes.csv"],
+      "spec": "首列基因名的单列表;可自动接入显著 DEG/机器学习结果,也可在方法页选择真实文件。"
     }
   ],
   "params_schema": {

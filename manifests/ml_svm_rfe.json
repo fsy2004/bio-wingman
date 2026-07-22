@@ -21,6 +21,7 @@
       "required": true,
       "primary": true,
       "example": "example_data/Sample_Type_Matrix.csv",
+      "auto_from": ["Sample_Type_Matrix.csv", "merged_after_correction.csv"],
       "spec": "首列基因名,其余样本列(列名以分组后缀结尾)。",
       "mem_axis": "n_rows"
     },
@@ -29,10 +30,11 @@
       "flag": "--genes",
       "label": "候选基因列表 CSV(次输入)",
       "format": "csv",
-      "required": false,
+      "required": true,
       "primary": false,
       "example": "example_data/candidate_genes.csv",
-      "spec": "单列基因名。当前固定用内置示例。"
+      "auto_from": ["DE_significant_genes.csv"],
+      "spec": "单列基因名;可自动接入上游显著 DEG,也可在方法页选择真实文件。"
     }
   ],
   "params_schema": {

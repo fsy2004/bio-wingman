@@ -85,11 +85,21 @@ def shape_of(m: dict):
     return _SHAPES.get(m.get("shape")) if m.get("shape") else None
 
 
-def build_argv(m, exe, input_path, params, outdir, col_map=None):
+def build_argv(m, exe, input_path, params, outdir, col_map=None, input_paths=None):
     argv = [exe, str(ROOT / m["entry"])]
+    selected = input_paths or {}
+    custom_mode = bool(input_path or selected)
     for spec in m.get("inputs", []):
-        path = input_path if spec.get("primary") else None
-        if not path and spec.get("example"):
+        name = str(spec.get("name", "input"))
+        path = selected.get(name)
+        if not path and spec.get("primary"):
+            path = input_path
+        if custom_mode and not path:
+            raise ValueError(
+                "missing project input / 缺少项目输入: "
+                + str(spec.get("label") or name)
+            )
+        if not custom_mode and not path and spec.get("example"):
             path = str(ROOT / m["workdir"] / spec["example"])
         if path:
             argv += [spec["flag"], str(path)]
@@ -111,9 +121,11 @@ class Run:
     kind ∈ {'log','error','done'};done 的 payload 是 returncode。结束后读 .outputs / .returncode。"""
 
     def __init__(self, m: dict, input_path: str | None = None, params: dict | None = None,
-                 timeout: int = 1800, col_map: dict | None = None):
+                 timeout: int = 1800, col_map: dict | None = None,
+                 input_paths: dict[str, str] | None = None):
         self.m = m
         self.input_path = input_path
+        self.input_paths = dict(input_paths or {})
         self.params = params or {}
         self.col_map = col_map or {}
         self.timeout = timeout
@@ -156,7 +168,10 @@ class Run:
                 return
         try:
             self.outdir.mkdir(parents=True, exist_ok=True)
-            argv = build_argv(self.m, exe, self.input_path, self.params, self.outdir, self.col_map)
+            argv = build_argv(
+                self.m, exe, self.input_path, self.params, self.outdir,
+                self.col_map, self.input_paths,
+            )
             env = os.environ.copy()
             env["BIOWINGMAN_TOOLKIT"] = str(TOOLKIT)
             env["PATH"] = str(Path(exe).parent) + os.pathsep + env.get("PATH", "")

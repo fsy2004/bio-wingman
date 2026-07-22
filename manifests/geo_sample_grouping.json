@@ -21,6 +21,7 @@
       "required": true,
       "primary": true,
       "example": "example_data/geneMatrix.csv",
+      "auto_from": ["geneMatrix.csv"],
       "spec": "首列基因名,其余为样本列。",
       "mem_axis": "n_rows"
     },
@@ -29,10 +30,11 @@
       "flag": "--group",
       "label": "样本分组表 CSV(次输入)",
       "format": "csv",
-      "required": false,
+      "required": true,
       "primary": false,
       "example": "example_data/sample_group.csv",
-      "spec": "两列:样本名(与 expr 列对应)、分组(con/tre)。当前固定用内置示例。"
+      "auto_from": ["sample_group.csv"],
+      "spec": "两列:样本名(与 expr 列对应)、分组(con/tre)。可在软件内通过样本分组编辑器生成。"
     }
   ],
   "params_schema": {

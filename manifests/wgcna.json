@@ -11,7 +11,7 @@
   "tier": "T2",
   "entry": "toolkit/modules/11_wgcna/054_wgcna_coexpression/054_WGCNA_coexpression.R",
   "workdir": "toolkit/modules/11_wgcna/054_wgcna_coexpression",
-  "description": "加权基因共表达网络分析(WGCNA):自动选软阈值、聚类成模块、计算模块-性状相关性,输出软阈值图、模块树状图、模块-性状热图与基因-模块归属表。次输入(性状表)当前使用内置示例。",
+  "description": "加权基因共表达网络分析(WGCNA):自动选软阈值、聚类成模块、计算模块-性状相关性,输出软阈值图、模块树状图、模块-性状热图与基因-模块归属表。性状表可由 GEO 分组编辑器自动生成并接线。",
   "inputs": [
     {
       "name": "input",
@@ -22,6 +22,7 @@
       "primary": true,
       "mem_axis": "n_rows",
       "example": "example_data/expr_matrix.csv",
+      "auto_from": ["Sample_Type_Matrix.csv", "merged_after_correction.csv"],
       "spec": "首列基因名,其余为样本列。建议先按方差筛到 5000–10000 高变基因(WGCNA 内存随基因数平方增长)。"
     },
     {
@@ -29,10 +30,11 @@
       "flag": "--traits",
       "label": "性状表 CSV(次输入)",
       "format": "csv",
-      "required": false,
+      "required": true,
       "primary": false,
       "example": "example_data/traits.csv",
-      "spec": "首列 Sample,其余为数值型性状列。当前版本此项固定用内置示例。"
+      "auto_from": ["sample_traits.csv"],
+      "spec": "首列 Sample,其余为数值型性状列。GEO 分组编辑器会生成二分类数值性状表,也可在方法页选择其他真实性状表。"
     }
   ],
   "params_schema": {
