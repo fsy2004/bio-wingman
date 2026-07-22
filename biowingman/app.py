@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""入口:DPI 感知 → tkinter 自检 → 原生 Windows 主题 + 微软雅黑字体 → 建主窗 → mainloop。"""
+"""入口:DPI 感知 → tkinter 自检 → sv-ttk 轻色主题 → 建主窗 → mainloop。"""
 from __future__ import annotations
 import sys
 
@@ -37,24 +37,27 @@ def main():
     root = tk.Tk()
     root.title("Bio Wingman")
 
-    # 主题:用原生 Windows(vista)——干净、切换快。sv-ttk 自绘控件每次切换多耗约 125ms(实测
-    # 200ms vs 76ms),且圆角现代感偏"AI 味";原生控件更简洁、更接近 RevMan,故弃用 sv-ttk。
+    # 成熟控件底座:sv-ttk 提供一致的圆角、焦点、禁用与交互状态;不可用时回退原生主题。
     try:
         from tkinter import ttk
         style = ttk.Style(root)
-        for _th in ("vista", "winnative", "clam"):
-            if _th in style.theme_names():
-                style.theme_use(_th)
-                break
+        try:
+            import sv_ttk
+            sv_ttk.set_theme("light", root)
+        except Exception:
+            for _th in ("vista", "winnative", "clam"):
+                if _th in style.theme_names():
+                    style.theme_use(_th)
+                    break
         from . import theme
-        theme.apply(style)               # 紧凑行高/字号/配色
+        theme.apply(style)
     except Exception:
         pass
 
     # 全局字体:微软雅黑(Win8+ 自带,中英同族清晰)
     try:
         for fn in ("TkDefaultFont", "TkTextFont", "TkMenuFont", "TkHeadingFont"):
-            tkfont.nametofont(fn).configure(family="Microsoft YaHei UI", size=10)
+            tkfont.nametofont(fn).configure(family=theme.FONT, size=10)
     except Exception:
         pass
 

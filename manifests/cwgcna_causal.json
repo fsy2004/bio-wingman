@@ -29,10 +29,10 @@
       "flag": "--traits",
       "label": "性状表 CSV(次输入)",
       "format": "csv",
-      "required": false,
+      "required": true,
       "primary": false,
       "example": "example_data/traits.csv",
-      "spec": "样本行 + 目标性状列。当前固定用内置示例。"
+      "spec": "样本行 + 目标性状列;在方法页选择真实性状文件。"
     }
   ],
   "params_schema": {

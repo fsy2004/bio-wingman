@@ -29,20 +29,20 @@
       "flag": "--valid",
       "label": "验证集表达矩阵 CSV(次输入)",
       "format": "csv",
-      "required": false,
+      "required": true,
       "primary": false,
       "example": "example_data/validation_matrix.csv",
-      "spec": "同结构的独立验证集。当前固定用内置示例。"
+      "spec": "同结构的独立验证集;在方法页选择真实文件。"
     },
     {
       "name": "genes",
       "flag": "--genes",
       "label": "诊断基因列表 CSV(次输入)",
       "format": "csv",
-      "required": false,
+      "required": true,
       "primary": false,
       "example": "example_data/diagnostic_genes.csv",
-      "spec": "单列基因名。当前固定用内置示例。"
+      "spec": "单列基因名;在方法页选择真实文件。"
     }
   ],
   "params_schema": {

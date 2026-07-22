@@ -22,6 +22,7 @@
       "primary": true,
       "mem_axis": "n_rows",
       "example": "example_data/gene_list.csv",
+      "auto_from": ["DE_significant_genes.csv", "LASSO_selected_genes.csv"],
       "spec": "单列 CSV,列名 Gene,每行一个人类基因 Symbol(或 ENTREZ,见 keytype 参数)。"
     }
   ],

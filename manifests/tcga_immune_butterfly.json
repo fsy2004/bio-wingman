@@ -29,20 +29,20 @@
       "flag": "--immune",
       "label": "免疫细胞比例 CSV(次输入)",
       "format": "csv",
-      "required": false,
+      "required": true,
       "primary": false,
       "example": "example_data/immune_fraction.csv",
-      "spec": "样本×免疫细胞比例(首列 Sample)。当前固定用内置示例。"
+      "spec": "样本×免疫细胞比例(首列 Sample);在方法页选择真实结果文件。"
     },
     {
       "name": "checkpoints",
       "flag": "--checkpoints",
       "label": "免疫检查点基因列表(次输入)",
       "format": "csv",
-      "required": false,
+      "required": true,
       "primary": false,
       "example": "example_data/checkpoint_genes.txt",
-      "spec": "检查点基因名列表。当前固定用内置示例。"
+      "spec": "检查点基因名列表;在方法页选择真实文件。"
     }
   ],
   "params_schema": {

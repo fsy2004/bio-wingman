@@ -29,20 +29,20 @@
       "flag": "--genelist",
       "label": "全转录组 logFC CSV(次输入)",
       "format": "csv",
-      "required": false,
+      "required": true,
       "primary": false,
       "example": "example_data/genelist_logFC.csv",
-      "spec": "两列:基因、logFC。当前固定用内置示例。"
+      "spec": "两列:基因、logFC;在方法页选择真实文件。"
     },
     {
       "name": "genes",
       "flag": "--genes",
       "label": "重点基因子集 logFC CSV(次输入)",
       "format": "csv",
-      "required": false,
+      "required": true,
       "primary": false,
       "example": "example_data/genes_subset_logFC.csv",
-      "spec": "两列:基因、logFC(用于成员图)。当前固定用内置示例。"
+      "spec": "两列:基因、logFC(用于成员图);在方法页选择真实文件。"
     }
   ],
   "params_schema": {

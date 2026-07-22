@@ -11,7 +11,7 @@
   "tier": "T1",
   "entry": "toolkit/modules/04_ml_feature_selection/012_lasso_feature_selection/012_LASSO_feature_selection.R",
   "workdir": "toolkit/modules/04_ml_feature_selection/012_lasso_feature_selection",
-  "description": "用 glmnet LASSO 逻辑回归从候选基因中筛选与分组相关的特征基因,输出交叉验证曲线、系数路径图与入选基因表。次输入(候选基因列表)当前使用内置示例。",
+  "description": "用 glmnet LASSO 逻辑回归从候选基因中筛选与分组相关的特征基因,输出交叉验证曲线、系数路径图与入选基因表。候选基因列表可自动接入上游显著 DEG 或在方法页选择。",
   "inputs": [
     {
       "name": "input",
@@ -22,6 +22,7 @@
       "primary": true,
       "mem_axis": "n_rows",
       "example": "example_data/Sample_Type_Matrix.csv",
+      "auto_from": ["Sample_Type_Matrix.csv", "merged_after_correction.csv"],
       "spec": "首列基因名,其余为样本列(列名以分组后缀 _con / _tre 结尾)。"
     },
     {
@@ -29,10 +30,11 @@
       "flag": "--genes",
       "label": "候选基因列表 CSV(次输入)",
       "format": "csv",
-      "required": false,
+      "required": true,
       "primary": false,
       "example": "example_data/candidate_genes.csv",
-      "spec": "首列基因名的单列表;省略则用全部基因。当前版本此项固定用内置示例。"
+      "auto_from": ["DE_significant_genes.csv"],
+      "spec": "首列基因名的单列表;可自动接入上游显著 DEG,也可在方法页选择真实文件。"
     }
   ],
   "params_schema": {

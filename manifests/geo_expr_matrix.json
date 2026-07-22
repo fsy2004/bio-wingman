@@ -29,10 +29,10 @@
       "flag": "--gpl",
       "label": "平台注释 (txt,次输入)",
       "format": "csv",
-      "required": false,
+      "required": true,
       "primary": false,
       "example": "example_data/GPL0000_demo_platform.txt",
-      "spec": "平台注释 txt,含探针→基因 Symbol 映射。当前固定用内置示例。"
+      "spec": "平台注释 txt,含探针→基因 Symbol 映射;与 GSE 文件一起从 GEO 下载后在方法页选择。"
     }
   ],
   "params_schema": {
