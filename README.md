@@ -149,6 +149,15 @@ GEO series_matrix.txt + GPL 平台注释
 
 点击结果页的「打开输出文件夹」，或在资源管理器地址栏输入 `%LOCALAPPDATA%\BioWingman\runs`。
 
+## 反馈与支持
+
+- 程序错误：[提交 Bug 报告](https://github.com/fsy2004/bio-wingman/issues/new?template=bug_report.yml)
+- 新分析或功能建议：[提交功能建议](https://github.com/fsy2004/bio-wingman/issues/new?template=feature_request.yml)
+- 安装、数据格式和参数问题：[在 Q&A 提问](https://github.com/fsy2004/bio-wingman/discussions/categories/q-a)
+- 工作流想法与经验交流：[进入 Ideas](https://github.com/fsy2004/bio-wingman/discussions/categories/ideas)
+
+提交错误前请先运行 `python setup/env_check.py`，并附上方法名称、最小复现步骤和完整日志。请勿上传含患者身份信息、未脱敏样本信息或其他敏感内容的数据。
+
 ## 隐私与适用范围
 
 - 项目数据在本机读取和计算，Bio Wingman 不提供数据上传服务。

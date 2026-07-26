@@ -1,0 +1,51 @@
+name: 功能建议 / Feature request
+description: 建议新增分析、数据导入器、结果展示或桌面交互功能
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        新分析建议最好形成清楚的“输入 → 方法 → 输出”闭环，并附成熟软件包、论文或源码链接。
+  - type: textarea
+    id: need
+    attributes:
+      label: 研究需求
+      description: 当前在哪个研究场景中遇到困难？希望软件帮助完成什么决策或分析？
+    validations:
+      required: true
+  - type: input
+    id: analysis
+    attributes:
+      label: 建议增加的分析或功能
+      placeholder: 例如：DESeq2 原始 counts 差异分析
+    validations:
+      required: true
+  - type: textarea
+    id: io
+    attributes:
+      label: 输入与预期输出
+      placeholder: |
+        输入：原始 counts 矩阵 + 样本分组表
+        输出：完整差异表、标准化矩阵、PCA、火山图、热图
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 推荐实现与科学依据
+      description: 请提供 R/Python 包、GitHub 源码、论文、方法指南或同类软件链接。
+      placeholder: 软件包名称、GitHub URL、DOI/PMID……
+  - type: textarea
+    id: workflow
+    attributes:
+      label: 希望接入的工作流位置
+      description: 说明它应接在哪个上游产物之后，以及结果将供哪些下游方法使用。
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 我已搜索现有方法和 Issues，确认该功能尚未提供。
+          required: true
