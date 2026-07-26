@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 使用问题与数据格式咨询 / Q&A
+    url: https://github.com/fsy2004/bio-wingman/discussions/categories/q-a
+    about: 安装、输入格式、参数选择和结果查看等问题请在 Discussions 提问。
+  - name: 分析建议与工作流交流 / Ideas
+    url: https://github.com/fsy2004/bio-wingman/discussions/categories/ideas
+    about: 分享希望增加的分析、工作流设计和改进思路。

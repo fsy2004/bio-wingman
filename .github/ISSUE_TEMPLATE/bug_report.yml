@@ -1,0 +1,83 @@
+name: 程序错误 / Bug report
+description: 报告可复现的启动、数据导入、分析运行或结果导出错误
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈。请删除或脱敏患者信息、样本身份信息和未公开数据，只提供能够复现问题的最小信息。
+  - type: dropdown
+    id: version
+    attributes:
+      label: Bio Wingman 版本
+      options:
+        - v0.4.0
+        - master / 源码版
+        - 其他版本
+    validations:
+      required: true
+  - type: input
+    id: method
+    attributes:
+      label: 分析方法
+      description: 填写左侧方法树中的完整名称。
+      placeholder: 例如：差异表达分析（limma）
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 运行环境
+      description: 请粘贴 `python setup/env_check.py` 的结果，并注明 Windows 版本。
+      placeholder: |
+        Windows 11 64 位
+        Python 3.12
+        R 4.4
+        环境体检结果……
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: 输入数据
+      description: 说明文件类型、行列规模和必要列名；不要上传敏感或未公开数据。
+      placeholder: GEO series matrix + GPL 注释；约 20,000 探针 × 30 样本
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. 启动软件并选择……
+        2. 选择输入文件……
+        3. 设置参数……
+        4. 点击运行后……
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 错误日志
+      description: 粘贴底部日志抽屉中的完整错误，或命令行启动时显示的错误。
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果与实际结果
+      description: 说明原本期望得到什么，以及实际发生了什么。
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 我已搜索现有 Issues，未发现相同问题。
+          required: true
+        - label: 我已删除或脱敏患者信息、样本身份信息和其他敏感数据。
+          required: true
